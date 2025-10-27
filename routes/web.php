@@ -7,66 +7,48 @@ use App\Http\Controllers\ProviderController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ServiceController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
 // 🌐 Public Pages
-Route::get('/', [PageController::class, 'home'])->name('home');
-Route::get('/services', [PageController::class, 'services'])->name('services');
-Route::get('/messages', [PageController::class, 'messages'])->name('messages');
-Route::get('/about', [PageController::class, 'about'])->name('about');
+Route::controller(PageController::class)->group(function () {
+    Route::get('/', 'home')->name('home');
+    Route::get('/services', 'services')->name('services.index');
+    Route::get('/messages', 'messages')->name('messages');
+    Route::get('/about', 'about')->name('about');
+});
 
 // 👑 Admin Routes
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
-    ->name('admin.')
+    ->as('admin.')
     ->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     });
 
-// 🧰 Provider Routes (Dashboard + Profile + Service CRUD)
+// 🧰 Provider Routes
 Route::middleware(['auth', 'role:provider'])
     ->prefix('provider')
-    ->name('provider.')
+    ->as('provider.')
     ->group(function () {
-
-        // 📊 Provider Dashboard
         Route::get('/dashboard', [ProviderController::class, 'dashboard'])->name('dashboard');
-
-        // 👤 Profile Routes
         Route::get('/profile', [ProviderController::class, 'profile'])->name('profile');
-        Route::post('/profile/update', [ProviderController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/profile', [ProviderController::class, 'updateProfile'])->name('updateProfile'); // ✅ FIXED
+        
 
-        // ✅ Service CRUD Routes
-        Route::get('/services', [ServiceController::class, 'index'])->name('services.index'); // list + create form inside dashboard
-        Route::post('/services', [ServiceController::class, 'store'])->name('services.store'); // store service
-        Route::get('/services/{service}/edit', [ServiceController::class, 'edit'])->name('services.edit'); // edit page
-        Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update'); // update service
-        Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy'); // delete service
+        // ✅ Service CRUD handled by ProviderController
+        Route::get('/services', [ProviderController::class, 'services'])->name('services');
+        Route::post('/services/store', [ProviderController::class, 'store'])->name('store');
+        Route::get('/services/{service}/edit', [ProviderController::class, 'edit'])->name('services.edit');
+        Route::put('/services/{service}', [ProviderController::class, 'update'])->name('services.update');
+        Route::delete('/services/{service}', [ProviderController::class, 'destroy'])->name('services.destroy');
     });
+
 
 // 👤 Customer Routes
 Route::middleware(['auth', 'role:customer'])
     ->prefix('customer')
-    ->name('customer.')
+    ->as('customer.')
     ->group(function () {
         Route::get('/dashboard', [CustomerController::class, 'dashboard'])->name('dashboard');
     });
 
-// 🏠 Redirect After Login
-Route::middleware(['auth'])->get('/dashboard', function () {
-    $user = auth()->user();
-
-    if ($user->role === 'admin') {
-        return redirect()->route('admin.dashboard');
-    } elseif ($user->role === 'provider') {
-        return redirect()->route('provider.dashboard');
-    }
-
-    return redirect()->route('customer.dashboard');
-})->name('dashboard');
-
+// 🔐 Authentication Routes
 require __DIR__ . '/auth.php';

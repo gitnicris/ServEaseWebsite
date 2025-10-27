@@ -10,11 +10,17 @@ class ProviderProfile extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'name',
+        'bio',
         'phone',
         'address',
-        'profile_photo',
+        'photo',
     ];
 
-  
+    // 🔗 Relationship: Profile belongs to a User
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

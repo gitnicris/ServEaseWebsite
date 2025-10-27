@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('category')->nullable();
             $table->string('image')->nullable();
 
-            // optional moderation/status
             $table->string('status')->default('approved'); // or 'pending', 'rejected'
 
             $table->timestamps();

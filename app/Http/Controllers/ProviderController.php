@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Service;
+use App\Models\ProviderProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -14,6 +15,7 @@ class ProviderController extends Controller
         $this->middleware(['auth', 'role:provider']);
     }
 
+    // 📊 Dashboard - Overview + Services
     public function dashboard()
     {
         $user = Auth::user();
@@ -22,38 +24,75 @@ class ProviderController extends Controller
         return view('provider.dashboard', compact('user', 'services'));
     }
 
+    // 🛠️ My Services Page (List Only)
+    public function services()
+    {
+        $providerId = Auth::id();
+        $services = Service::where('user_id', $providerId)
+            ->latest()
+            ->get();
+
+        return view('provider.services', compact('services'));
+    }
+
+    // 👤 Profile Page
     public function profile()
     {
         $user = Auth::user();
-        return view('provider.profile', compact('user'));
+
+        // Create profile if not yet existing
+        $profile = ProviderProfile::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'name' => $user->name,
+                'bio' => '',
+                'phone' => '',
+                'address' => '',
+                'photo' => null,
+            ]
+        );
+
+        return view('provider.profile', compact('user', 'profile'));
     }
 
+    // 🧩 Update Profile
     public function updateProfile(Request $request)
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'bio' => 'nullable|string|max:1000',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'bio' => 'nullable|string|max:1000',
+        'phone' => 'nullable|string|max:20',
+        'address' => 'nullable|string|max:255',
+        'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
 
-        if ($request->hasFile('photo')) {
-            if ($user->photo && Storage::disk('public')->exists($user->photo)) {
-                Storage::disk('public')->delete($user->photo);
-            }
-            $path = $request->file('photo')->store('profile_photos', 'public');
-            $user->photo = $path;
+    $profile = ProviderProfile::firstOrCreate(['user_id' => $user->id]);
+
+    // 🖼️ Handle photo upload
+    if ($request->hasFile('photo')) {
+        if ($profile->photo && Storage::disk('public')->exists($profile->photo)) {
+            Storage::disk('public')->delete($profile->photo);
         }
-
-        $user->update($request->only('name', 'bio', 'phone', 'address'));
-
-        return back()->with('success', 'Profile updated successfully!');
+        $path = $request->file('photo')->store('provider_photos', 'public');
+        $profile->photo = $path;
     }
 
-  
+    // ✏️ Update profile info
+    $profile->fill($request->only('bio', 'phone', 'address'))->save();
+
+    // ✏️ Update main user table name (if you want the name to reflect globally)
+    $user->name = $request->input('name');
+    $user->save();
+
+    return redirect()
+        ->route('provider.profile')
+        ->with('success', 'Profile updated successfully!');
+}
+
+
+    // 🟢 Create New Service
     public function store(Request $request)
     {
         $request->validate([
@@ -70,18 +109,21 @@ class ProviderController extends Controller
             $data['image'] = $request->file('image')->store('services', 'public');
         }
 
-        Auth::user()->services()->create($data);
+        $data['user_id'] = Auth::id();
 
-        return redirect()->route('provider.dashboard')->with('success', 'Service created!');
+        Service::create($data);
+
+        return redirect()->route('provider.services')->with('success', 'Service created successfully!');
     }
 
+    // ✏️ Edit Service
     public function edit(Service $service)
     {
         $this->authorizeOwner($service);
-
         return view('provider.edit-service', compact('service'));
     }
 
+    // 🔄 Update Service
     public function update(Request $request, Service $service)
     {
         $this->authorizeOwner($service);
@@ -105,9 +147,10 @@ class ProviderController extends Controller
 
         $service->update($data);
 
-        return redirect()->route('provider.dashboard')->with('success', 'Service updated!');
+        return redirect()->route('provider.services')->with('success', 'Service updated successfully!');
     }
 
+    // ❌ Delete Service
     public function destroy(Service $service)
     {
         $this->authorizeOwner($service);
@@ -118,9 +161,10 @@ class ProviderController extends Controller
 
         $service->delete();
 
-        return redirect()->route('provider.dashboard')->with('success', 'Service deleted.');
+        return redirect()->route('provider.services')->with('success', 'Service deleted successfully.');
     }
 
+    // 🔐 Ownership Check
     private function authorizeOwner(Service $service)
     {
         if ($service->user_id !== Auth::id()) {
