@@ -14,7 +14,6 @@ class ProviderController extends Controller
         $this->middleware(['auth', 'role:provider']);
     }
 
-    // ✅ Dashboard: Provider info + services list
     public function dashboard()
     {
         $user = Auth::user();
@@ -23,14 +22,12 @@ class ProviderController extends Controller
         return view('provider.dashboard', compact('user', 'services'));
     }
 
-    // ✅ View profile
     public function profile()
     {
         $user = Auth::user();
         return view('provider.profile', compact('user'));
     }
 
-    // ✅ Update profile
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
@@ -56,11 +53,7 @@ class ProviderController extends Controller
         return back()->with('success', 'Profile updated successfully!');
     }
 
-    /* -----------------------------------
-       ✅ Service CRUD for Provider Panel
-       ----------------------------------- */
-
-    // Create new service ✅
+  
     public function store(Request $request)
     {
         $request->validate([
@@ -82,7 +75,6 @@ class ProviderController extends Controller
         return redirect()->route('provider.dashboard')->with('success', 'Service created!');
     }
 
-    // Edit Form ✅
     public function edit(Service $service)
     {
         $this->authorizeOwner($service);
@@ -90,7 +82,6 @@ class ProviderController extends Controller
         return view('provider.edit-service', compact('service'));
     }
 
-    // Update ✅
     public function update(Request $request, Service $service)
     {
         $this->authorizeOwner($service);
@@ -117,7 +108,6 @@ class ProviderController extends Controller
         return redirect()->route('provider.dashboard')->with('success', 'Service updated!');
     }
 
-    // Delete ✅
     public function destroy(Service $service)
     {
         $this->authorizeOwner($service);
@@ -131,7 +121,6 @@ class ProviderController extends Controller
         return redirect()->route('provider.dashboard')->with('success', 'Service deleted.');
     }
 
-    // ✅ Reusable authorization check
     private function authorizeOwner(Service $service)
     {
         if ($service->user_id !== Auth::id()) {
