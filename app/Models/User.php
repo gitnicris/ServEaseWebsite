@@ -62,4 +62,15 @@ class User extends Authenticatable
         // 🅰️ fallback: initial-based avatar
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name);
     }
+   public function customerBookings()
+{
+    return $this->hasMany(Booking::class, 'customer_id');
+}
+
+public function providerBookings()
+{
+    return $this->hasMany(Booking::class, 'provider_id');
+}
+
+
 }

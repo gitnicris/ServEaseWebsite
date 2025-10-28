@@ -20,22 +20,29 @@ public function dashboard()
 {
     $user = Auth::user();
 
-    // Provider's own services
-    $services = Service::where('user_id', $user->id)->latest()->take(5)->get();
+    // Provider's services
+    $services = Service::where('user_id', $user->id)->get();
 
-    // Stats (for now, use dummy booking & earnings until Booking model is added)
+    // Get all bookings for this provider
+    $bookings = $user->providerBookings;
+
+    // Stats
     $totalServices = $services->count();
-    $totalBookings = 0; // later replaced with actual bookings
-    $totalEarnings = 0; // later replaced with sum of completed booking prices
+    $totalBookings = $bookings->count();
+    $totalEarnings = $bookings->where('status', 'completed')->sum('price');
 
-    return view('provider.dashboard', [
-        'user' => $user,
-        'recentServices' => $services,
-        'totalServices' => $totalServices,
-        'totalBookings' => $totalBookings,
-        'totalEarnings' => $totalEarnings,
-    ]);
+    // Show 5 most recent services
+    $recentServices = $services->take(5);
+
+    return view('provider.dashboard', compact(
+        'user',
+        'totalServices',
+        'totalBookings',
+        'totalEarnings',
+        'recentServices'
+    ));
 }
+
 
 
     // 🛠️ My Services Page (List Only)
