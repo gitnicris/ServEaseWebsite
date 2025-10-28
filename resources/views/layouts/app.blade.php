@@ -96,16 +96,30 @@
         </div>
 
         <!-- 👤 Auth Section -->
-        <div class="hidden md:flex items-center space-x-4">
-            @auth
-                <span class="text-sm text-gray-200">Hi, {{ Auth::user()->name }}</span>
-            @else
-                <a href="{{ route('login') }}" class="hover:text-orange-400 font-medium">Login</a>
-                <a href="{{ route('register') }}" class="bg-orange-500 hover:bg-orange-600 px-3 py-1 rounded-md text-sm font-semibold text-white">
-                    Register
-                </a>
-            @endauth
+<div class="hidden md:flex items-center space-x-4">
+    @auth
+        <div class="flex items-center space-x-3">
+            {{-- 🖼️ Profile Photo --}}
+            <img 
+                src="{{ Auth::user()->profile_photo_url }}" 
+                alt="Profile Picture" 
+                class="w-8 h-8 rounded-full object-cover border-2 border-orange-400 shadow-sm"
+            >
+
+            {{-- 👋 User Name --}}
+            <span class="text-sm text-gray-200 font-medium">
+                Hi, {{ Auth::user()->name }}
+            </span>
         </div>
+    @else
+        <a href="{{ route('login') }}" class="hover:text-orange-400 font-medium">Login</a>
+        <a href="{{ route('register') }}" class="bg-orange-500 hover:bg-orange-600 px-3 py-1 rounded-md text-sm font-semibold text-white">
+            Register
+        </a>
+    @endauth
+</div>
+
+
     </nav>
 
     <!-- 📱 Sidebar -->

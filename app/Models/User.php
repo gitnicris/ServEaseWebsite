@@ -2,50 +2,32 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Service;
-
+use App\Models\ProviderProfile;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-    'name',
-    'email',
-    'password',
-    'bio',
-    'phone',
-    'address',
-    'photo',
-    'role',
-];
+        'name',
+        'email',
+        'password',
+        'bio',
+        'phone',
+        'address',
+        'photo',
+        'role',
+    ];
 
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -53,13 +35,31 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // 🧩 A user (provider) can have many services
     public function services()
-{
-    return $this->hasMany(Service::class);
-}
+    {
+        return $this->hasMany(Service::class);
+    }
 
-    
-  
+    // 👤 A provider has one profile
+    public function providerProfile()
+    {
+        return $this->hasOne(ProviderProfile::class, 'user_id');
+    }
 
+    // 🧠 Helper to easily get user’s photo (fallback if missing)
+    public function getProfilePhotoUrlAttribute()
+    {
+        if ($this->providerProfile && $this->providerProfile->photo) {
+            return asset('storage/' . $this->providerProfile->photo);
+        }
 
+        if ($this->photo) {
+            return asset('storage/' . $this->photo);
+        }
+
+        // 🅰️ fallback: initial-based avatar
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name);
+    }
 }
