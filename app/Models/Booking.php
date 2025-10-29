@@ -23,13 +23,18 @@ class Booking extends Model
         return $this->belongsTo(Service::class);
     }
 
+    public function customer()
+    {
+        return $this->belongsTo(User::class, 'customer_id');
+    }
+
     public function provider()
     {
         return $this->belongsTo(User::class, 'provider_id');
     }
 
-    public function customer()
+    public function messages()
     {
-        return $this->belongsTo(User::class, 'customer_id');
+        return $this->hasMany(Message::class);
     }
 }

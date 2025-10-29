@@ -91,7 +91,6 @@
         <div class="hidden md:flex items-center space-x-6 text-lg">
             <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active text-orange-400' : 'hover:text-orange-400' }}">Home</a>
             <a href="{{ route('services.index') }}" class="{{ request()->routeIs('services.index') ? 'active text-orange-400' : 'hover:text-orange-400' }}">Services</a>
-            <a href="{{ route('messages') }}" class="{{ request()->routeIs('messages') ? 'active text-orange-400' : 'hover:text-orange-400' }}">Messages</a>
             <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active text-orange-400' : 'hover:text-orange-400' }}">About</a>
         </div>
 
@@ -133,35 +132,51 @@
 
         <a href="{{ route('home') }}" class="hover:text-orange-400">Home</a>
         <a href="{{ route('services.index') }}" class="hover:text-orange-400">Services</a>
-        <a href="{{ route('messages') }}" class="hover:text-orange-400">Messages</a>
         <a href="{{ route('about') }}" class="hover:text-orange-400">About</a>
 
         <hr class="border-gray-600">
 
         @auth
-            <span class="text-sm text-gray-300">Hi, {{ Auth::user()->name }}</span>
-            @php $role = Auth::user()->role; @endphp
+    <span class="text-sm text-gray-300">Hi, {{ Auth::user()->name }}</span>
+    @php $role = Auth::user()->role; @endphp
 
-            @if ($role === 'provider')
-                <a href="{{ route('provider.dashboard') }}" class="hover:text-orange-400">Dashboard</a>
-                <a href="{{ route('provider.profile') }}" class="hover:text-orange-400">Profile</a>
-                <a href="{{ route('provider.services') }}" class="hover:text-orange-400">My Services</a>
-            @elseif ($role === 'admin')
-                <a href="{{ route('admin.dashboard') }}" class="hover:text-orange-400">Dashboard</a>
-            @else
-                <a href="{{ route('customer.dashboard') }}" class="hover:text-orange-400">Dashboard</a>
-            @endif
+    @if ($role === 'provider')
+        <a href="{{ route('provider.dashboard') }}" class="hover:text-orange-400">Dashboard</a>
+        <a href="{{ route('provider.profile') }}" class="hover:text-orange-400">Profile</a>
+        <a href="{{ route('provider.services') }}" class="hover:text-orange-400">My Services</a>
+        <a href="{{ route('provider.bookings') }}" class="hover:text-orange-400">Bookings</a>
+        <a href="{{ route('provider.messages.index') }}" class="hover:text-orange-400 flex items-center space-x-2">
+            <i class="bi bi-chat-dots"></i>
+            <span>Chats</span>
+        </a>
+    @elseif ($role === 'admin')
+        <a href="{{ route('admin.dashboard') }}" class="hover:text-orange-400">Dashboard</a>
+    @else
+        <a href="{{ route('customer.dashboard') }}" class="hover:text-orange-400">Dashboard</a>
+        <a href="{{ route('customer.bookings') }}" class="hover:text-orange-400">My Bookings</a>
+        <a href="{{ route('customer.messages.index') }}" class="hover:text-orange-400 flex items-center space-x-2">
+            <i class="bi bi-chat-dots"></i>
+            <span>Chats</span>
+        </a>
+    @endif
 
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="bg-red-500 hover:bg-red-600 w-full text-center px-3 py-1 rounded-md text-sm font-semibold text-white mt-3">
-                    Logout
-                </button>
-            </form>
-        @else
-            <a href="{{ route('login') }}" class="hover:text-orange-400">Login</a>
-            <a href="{{ route('register') }}" class="bg-orange-500 hover:bg-orange-600 w-full text-center px-3 py-1 rounded-md text-sm font-semibold text-white mt-2">Register</a>
-        @endauth
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button 
+            type="submit" 
+            class="bg-red-500 hover:bg-red-600 w-full text-center px-3 py-1 rounded-md text-sm font-semibold text-white mt-3">
+            Logout
+        </button>
+    </form>
+@else
+    <a href="{{ route('login') }}" class="hover:text-orange-400">Login</a>
+    <a href="{{ route('register') }}" 
+       class="bg-orange-500 hover:bg-orange-600 w-full text-center px-3 py-1 rounded-md text-sm font-semibold text-white mt-2">
+       Register
+    </a>
+@endauth
+
+
     </div>
 
     <!-- 🔲 Overlay -->
