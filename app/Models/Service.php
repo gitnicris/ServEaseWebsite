@@ -24,7 +24,6 @@ class Service extends Model
         'price' => 'decimal:2',
     ];
 
-    // The user/provider who owns this service
     public function provider()
 {
     return $this->belongsTo(User::class, 'user_id');
