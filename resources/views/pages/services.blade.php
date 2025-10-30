@@ -32,16 +32,23 @@
                         </div>
                     </div>
 
-                    <!-- 👤 Provider Info -->
-                    <div class="p-4 bg-black/50 border-t border-white/10 text-sm text-gray-300 flex justify-between items-center">
-                        <div class="flex items-center space-x-2">
-                            <i class="bi bi-person-circle text-orange-400"></i>
-                            <span>{{ $service->provider->name ?? 'Unknown Provider' }}</span>
-                        </div>
-                        <button class="bg-orange-500 hover:bg-orange-600 px-3 py-1 rounded-md text-white font-medium text-xs">
-                            Book Now
-                        </button>
-                    </div>
+                    <!-- 👤 Provider Info + Book Button -->
+                    <!-- 👤 Provider Info + Booking -->
+<div class="p-4 bg-black/50 border-t border-white/10 text-sm text-gray-300 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+        <i class="bi bi-person-circle text-orange-400"></i>
+        <span>{{ $service->provider->name ?? 'Unknown Provider' }}</span>
+    </div>
+
+    <!-- ✅ Booking Form -->
+    <form action="{{ route('customer.book.service', $service->id) }}" method="POST">
+        @csrf
+        <button type="submit" class="bg-orange-500 hover:bg-orange-600 px-3 py-1 rounded-md text-white font-medium text-xs">
+            Book Now
+        </button>
+    </form>
+</div>
+
                 </div>
             @endforeach
         </div>

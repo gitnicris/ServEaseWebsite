@@ -1,47 +1,107 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="flex h-[calc(100vh-70px)] bg-[#0f172a] text-gray-200">
-    <!-- Left panel (conversation list) -->
-    <div class="w-1/3 border-r border-gray-700 p-4 overflow-y-auto">
-        <h2 class="text-lg font-semibold text-orange-400 mb-4">Messages</h2>
-        @foreach($conversations as $conversation)
-            <a href="{{ route('messages.chat', $conversation->id) }}"
-               class="block p-3 mb-2 rounded-lg hover:bg-gray-800 transition">
-                <div class="font-semibold">{{ $conversation->otherUser->name }}</div>
-                <div class="text-sm text-gray-400">{{ $conversation->service->name ?? 'Service' }}</div>
-            </a>
-        @endforeach
+<div class="min-h-screen bg-gray-900 text-white flex overflow-hidden">
+
+    {{-- LEFT SIDEBAR: Conversations --}}
+    <div class="w-1/3 bg-gray-800 border-r border-gray-700 flex flex-col">
+        <h2 class="text-xl font-semibold text-orange-400 p-4 border-b border-gray-700">Messages</h2>
+
+        <div class="flex-1 overflow-y-auto custom-scrollbar">
+            @forelse($conversations as $conversation)
+                @php
+                    $otherUser = auth()->user()->role === 'provider' 
+                        ? $conversation->customer 
+                        : $conversation->provider;
+                @endphp
+                <a href="{{ route(auth()->user()->role . '.messages.chat', $conversation->id) }}" 
+                   class="block p-4 hover:bg-gray-700 transition {{ $conversation->id === $booking->id ? 'bg-gray-700' : '' }}">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-semibold text-white">
+                                {{ $otherUser->name ?? 'Unknown User' }}
+                            </p>
+                            <p class="text-sm text-gray-400 truncate">
+                                {{ $conversation->service->name ?? 'Service' }}
+                            </p>
+                        </div>
+                        <span class="text-xs text-gray-500">
+                            {{ optional($conversation->messages->last())->created_at?->diffForHumans() ?? '' }}
+                        </span>
+                    </div>
+                </a>
+            @empty
+                <div class="p-4 text-gray-400 text-center">No conversations yet.</div>
+            @endforelse
+        </div>
     </div>
 
-    <!-- Right panel (chat window) -->
-    <div class="flex-1 flex flex-col bg-[#0f172a]">
-        @if(isset($messages))
-            <div class="flex-1 overflow-y-auto p-4 space-y-3">
-                @foreach($messages as $msg)
-                    <div class="flex {{ $msg->sender_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
-                        <div class="max-w-xs px-4 py-2 rounded-2xl {{ $msg->sender_id === auth()->id() ? 'bg-orange-500 text-white' : 'bg-gray-800 text-gray-100' }}">
-                            {{ $msg->message }}
-                        </div>
-                    </div>
-                @endforeach
-            </div>
+    {{-- RIGHT PANEL: Active Chat --}}
+    <div class="flex-1 flex flex-col bg-gray-900">
+        {{-- Chat Header --}}
+        <div class="flex items-center justify-between p-4 bg-gray-800 border-b border-gray-700 sticky top-0 z-10">
+            <h2 class="text-lg font-semibold text-orange-400 truncate">
+                {{ auth()->id() === $booking->customer_id ? $booking->provider->name : $booking->customer->name }}
+            </h2>
+            <span class="text-gray-400 text-sm truncate">
+                {{ $booking->service->name ?? '' }}
+            </span>
+        </div>
 
-            <form method="POST" action="{{ route('messages.send', $booking->id) }}" class="p-4 border-t border-gray-700 bg-[#1e293b]">
-                @csrf
-                <div class="flex gap-2">
-                    <input type="text" name="message" placeholder="Type your message..."
-                           class="flex-1 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500" required>
-                    <button type="submit" class="px-5 py-2 bg-orange-500 rounded-lg font-semibold hover:bg-orange-600 transition">
-                        Send
-                    </button>
+        {{-- Chat Messages --}}
+        <div id="chat-box" class="flex-1 overflow-y-auto p-4 bg-gray-900 custom-scrollbar">
+            @forelse($messages as $msg)
+                <div class="mb-3 flex {{ $msg->sender_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
+                    <div class="max-w-[70%] px-4 py-2 rounded-2xl 
+                        {{ $msg->sender_id === auth()->id() 
+                            ? 'bg-orange-500 text-white' 
+                            : 'bg-gray-700 text-gray-100' }}">
+                        <p class="whitespace-pre-line">{{ $msg->message }}</p>
+                        <small class="block text-xs text-gray-300 mt-1 text-right">
+                            {{ $msg->created_at->diffForHumans() }}
+                        </small>
+                    </div>
                 </div>
-            </form>
-        @else
-            <div class="flex-1 flex items-center justify-center text-gray-500">
-                Select a conversation to start chatting.
-            </div>
-        @endif
+            @empty
+                <p class="text-gray-400 text-center mt-10">No messages yet.</p>
+            @endforelse
+        </div>
+
+        {{-- Send Message Form --}}
+        <form action="{{ route(auth()->user()->role . '.messages.send', $booking->id) }}" 
+              method="POST" 
+              class="p-4 bg-gray-800 border-t border-gray-700 flex gap-2 sticky bottom-0">
+            @csrf
+            <input type="text" name="message" required 
+                class="flex-1 px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="Type a message...">
+            <button type="submit" 
+                class="bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg font-semibold">
+                Send
+            </button>
+        </form>
     </div>
 </div>
+
+{{-- Custom scrollbar & auto-scroll --}}
+<style>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #444;
+    border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #666;
+}
+</style>
+
+<script>
+    // ✅ Auto-scroll to latest message
+    const chatBox = document.getElementById('chat-box');
+    if (chatBox) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+</script>
 @endsection

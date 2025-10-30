@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Service;
+use App\Models\Booking;
+use App\Models\Message;
 use App\Models\CustomerProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,9 +21,30 @@ class CustomerController extends Controller
     public function dashboard()
     {
         $user = Auth::user();
-        $recentServices = Service::latest()->take(5)->get();
 
-        return view('customer.dashboard', compact('user', 'recentServices'));
+        // 📊 Dynamic Stats
+        $totalBookings = Booking::where('customer_id', $user->id)->count();
+        $totalMessages = Message::where('sender_id', $user->id)
+                                ->orWhere('receiver_id', $user->id)
+                                ->count();
+
+        // 💡 Recommended & Recent
+        $recommendedServices = Service::inRandomOrder()->take(6)->get();
+
+        // 📅 Recent Bookings
+        $recentBookings = Booking::with(['service', 'provider'])
+            ->where('customer_id', $user->id)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('customer.dashboard', compact(
+            'user',
+            'totalBookings',
+            'totalMessages',
+            'recommendedServices',
+            'recentBookings'
+        ));
     }
 
     // 👤 Profile Page
@@ -88,26 +111,36 @@ class CustomerController extends Controller
 
         return view('customer.services', compact('services'));
     }
+
     public function services()
     {
         // Fetch all available services from providers
-        $services = \App\Models\Service::latest()->get();
+        $services = Service::latest()->get();
         return view('customer.services', compact('services'));
     }
 
     // 💬 Messages Page
     public function messages()
     {
-        return view('customer.messages');
+        $user = Auth::user();
+
+        $conversations = Message::where('sender_id', $user->id)
+                                ->orWhere('receiver_id', $user->id)
+                                ->with('sender', 'receiver')
+                                ->latest()
+                                ->get();
+
+        return view('customer.messages', compact('conversations'));
     }
+
+    // 📅 Bookings Page
     public function bookings()
-{
-    $bookings = \App\Models\Booking::with(['service', 'provider'])
-        ->where('customer_id', auth()->id())
-        ->latest()
-        ->get();
+    {
+        $bookings = Booking::with(['service', 'provider'])
+            ->where('customer_id', auth()->id())
+            ->latest()
+            ->get();
 
-    return view('customer.bookings', compact('bookings'));
-}
-
+        return view('customer.bookings', compact('bookings'));
+    }
 }

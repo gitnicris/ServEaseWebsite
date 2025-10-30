@@ -35,10 +35,12 @@ class MessageController extends Controller
      */
     public function index($bookingId)
     {
+        $user = Auth::user();
+
         $booking = Booking::with(['service', 'customer', 'provider'])->findOrFail($bookingId);
 
         // Ensure the user belongs to this chat
-        if (Auth::id() !== $booking->customer_id && Auth::id() !== $booking->provider_id) {
+        if ($user->id !== $booking->customer_id && $user->id !== $booking->provider_id) {
             abort(403, 'Unauthorized access to this conversation.');
         }
 
@@ -46,7 +48,18 @@ class MessageController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
-        return view('messages.chat', compact('booking', 'messages'));
+        // 🩵 Include all user's conversations for the chat sidebar
+        $conversations = Booking::where(function ($query) use ($user) {
+            $query->where('customer_id', $user->id)
+                  ->orWhere('provider_id', $user->id);
+        })
+        ->with(['customer', 'provider', 'messages' => function ($query) {
+            $query->latest()->take(1);
+        }])
+        ->latest()
+        ->get();
+
+        return view('messages.chat', compact('booking', 'messages', 'conversations'));
     }
 
     /**

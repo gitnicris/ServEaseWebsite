@@ -31,6 +31,12 @@
         .card:hover {
             transform: translateY(-5px);
         }
+        .btn {
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body class="flex min-h-screen animate__animated animate__fadeIn">
@@ -43,7 +49,7 @@
                 <a href="{{ route('admin.dashboard') }}" class="block hover:text-orange-400">🏠 Dashboard</a>
                 <a href="#" class="block hover:text-orange-400">🧑‍🔧 Providers</a>
                 <a href="#" class="block hover:text-orange-400">👥 Customers</a>
-                <a href="#" class="block hover:text-orange-400">🧾 Services</a>
+                <a href="{{ route('admin.services.pending') }}" class="block hover:text-orange-400">🧾 Pending Services</a>
                 <a href="#" class="block hover:text-orange-400">⚙️ Settings</a>
             </nav>
         </div>
@@ -63,17 +69,23 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="card p-6 rounded-xl shadow-lg">
                 <h2 class="text-lg font-semibold text-orange-400">Total Providers</h2>
-                <p class="text-4xl mt-2 font-bold">12</p>
+                <p class="text-4xl mt-2 font-bold">{{ $providersCount ?? 0 }}</p>
             </div>
 
             <div class="card p-6 rounded-xl shadow-lg">
                 <h2 class="text-lg font-semibold text-orange-400">Total Customers</h2>
-                <p class="text-4xl mt-2 font-bold">48</p>
+                <p class="text-4xl mt-2 font-bold">{{ $customersCount ?? 0 }}</p>
             </div>
 
-            <div class="card p-6 rounded-xl shadow-lg">
-                <h2 class="text-lg font-semibold text-orange-400">Pending Services</h2>
-                <p class="text-4xl mt-2 font-bold">5</p>
+            <div class="card p-6 rounded-xl shadow-lg flex flex-col justify-between">
+                <div>
+                    <h2 class="text-lg font-semibold text-orange-400">Pending Services</h2>
+                    <p class="text-4xl mt-2 font-bold">{{ $pendingServicesCount ?? 0 }}</p>
+                </div>
+                <a href="{{ route('admin.services.pending') }}"
+                   class="mt-4 inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg btn text-center">
+                    Review Pending Services →
+                </a>
             </div>
         </div>
 
@@ -90,20 +102,27 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="border-b border-gray-400/20">
-                        <td class="py-2">1</td>
-                        <td>Home Cleaning</td>
-                        <td>Jane Provider</td>
-                        <td><span class="bg-yellow-500 px-2 py-1 rounded text-xs">Pending</span></td>
-                        <td>Oct 20, 2025</td>
-                    </tr>
-                    <tr>
-                        <td class="py-2">2</td>
-                        <td>Plumbing Repair</td>
-                        <td>John Provider</td>
-                        <td><span class="bg-green-500 px-2 py-1 rounded text-xs">Approved</span></td>
-                        <td>Oct 18, 2025</td>
-                    </tr>
+                    @forelse($recentServices ?? [] as $index => $service)
+                        <tr class="border-b border-gray-400/20">
+                            <td class="py-2">{{ $index + 1 }}</td>
+                            <td>{{ $service->title }}</td>
+                            <td>{{ $service->user->name ?? 'N/A' }}</td>
+                            <td>
+                                @if($service->status === 'approved')
+                                    <span class="bg-green-500 px-2 py-1 rounded text-xs">Approved</span>
+                                @elseif($service->status === 'pending')
+                                    <span class="bg-yellow-500 px-2 py-1 rounded text-xs">Pending</span>
+                                @else
+                                    <span class="bg-red-500 px-2 py-1 rounded text-xs">Rejected</span>
+                                @endif
+                            </td>
+                            <td>{{ $service->created_at->format('M d, Y') }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="py-4 text-center text-gray-300">No recent service posts</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
