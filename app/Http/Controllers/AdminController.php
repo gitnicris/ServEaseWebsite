@@ -19,16 +19,13 @@ class AdminController extends Controller
     // 🏠 Dashboard Overview
     public function dashboard()
     {
-        // Count by service status
         $pendingCount  = Service::where('status', 'pending')->count();
         $approvedCount = Service::where('status', 'approved')->count();
         $rejectedCount = Service::where('status', 'rejected')->count();
 
-        // Count users by role
         $providersCount = User::where('role', 'provider')->count();
         $customersCount = User::where('role', 'customer')->count();
 
-        // Get recent services for table display
         $recentServices = Service::with('user')->latest()->take(5)->get();
 
         return view('admin.dashboard', compact(
