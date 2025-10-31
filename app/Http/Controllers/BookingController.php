@@ -51,7 +51,7 @@ class BookingController extends Controller
         return view('customer.bookings', compact('bookings'));
     }
 
-    // 📦 Provider View: Bookings they received
+    
     public function providerBookings()
     {
         $bookings = Booking::where('provider_id', Auth::id())
@@ -62,12 +62,12 @@ class BookingController extends Controller
         return view('provider.bookings', compact('bookings'));
     }
 
-    // 🔁 Provider updates booking status
+    
     public function updateStatus(Request $request, $bookingId)
     {
         $booking = Booking::findOrFail($bookingId);
 
-        // Ensure the logged-in user is the provider
+    
         if ($booking->provider_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
