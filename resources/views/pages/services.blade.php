@@ -9,47 +9,52 @@
     @else
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             @foreach ($services as $service)
-                <div class="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg hover:shadow-xl transition transform hover:scale-[1.02] duration-300 overflow-hidden flex flex-col">
+                @if ($service->status === 'approved')
+                    <div class="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg hover:shadow-xl transition transform hover:scale-[1.02] duration-300 overflow-hidden flex flex-col">
 
-                    <!-- 🖼️ Service Image -->
-                    @if ($service->image && Storage::disk('public')->exists($service->image))
-                        <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->title }}" class="h-56 w-full object-cover">
-                    @else
-                        <div class="h-56 w-full bg-gray-700 flex items-center justify-center text-gray-400 text-sm">
-                            <i class="bi bi-image-alt text-3xl"></i>
-                            <span class="ml-2">No Image Available</span>
+                        <!-- 🖼️ Service Image -->
+                        @if ($service->image && Storage::disk('public')->exists($service->image))
+                            <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->title }}" class="h-56 w-full object-cover">
+                        @else
+                            <div class="h-56 w-full bg-gray-700 flex items-center justify-center text-gray-400 text-sm">
+                                <i class="bi bi-image-alt text-3xl"></i>
+                                <span class="ml-2">No Image Available</span>
+                            </div>
+                        @endif
+
+                        <!-- 🧾 Details -->
+                        <div class="p-6 flex-1 flex flex-col relative">
+                            <!-- ✅ Approved Badge -->
+                            <span class="absolute top-4 right-4 bg-green-600 text-xs px-2 py-1 rounded-md font-semibold">
+                                ✅ Approved
+                            </span>
+
+                            <h3 class="text-2xl font-semibold text-orange-300 mb-2">{{ $service->title }}</h3>
+                            <p class="text-gray-200 text-sm mb-4 flex-1">{{ Str::limit($service->description, 120) }}</p>
+
+                            <div class="flex justify-between items-center mt-auto">
+                                <p class="font-semibold text-lg text-white">₱{{ number_format($service->price, 2) }}</p>
+                                <p class="text-sm text-gray-300">{{ $service->category ?: 'Uncategorized' }}</p>
+                            </div>
                         </div>
-                    @endif
 
-                    <!-- 🧾 Details -->
-                    <div class="p-6 flex-1 flex flex-col">
-                        <h3 class="text-2xl font-semibold text-orange-300 mb-2">{{ $service->title }}</h3>
-                        <p class="text-gray-200 text-sm mb-4 flex-1">{{ Str::limit($service->description, 120) }}</p>
+                        <!-- 👤 Provider Info + Booking -->
+                        <div class="p-4 bg-black/50 border-t border-white/10 text-sm text-gray-300 flex justify-between items-center">
+                            <div class="flex items-center space-x-2">
+                                <i class="bi bi-person-circle text-orange-400"></i>
+                                <span>{{ $service->provider->name ?? 'Unknown Provider' }}</span>
+                            </div>
 
-                        <div class="flex justify-between items-center mt-auto">
-                            <p class="font-semibold text-lg text-white">₱{{ number_format($service->price, 2) }}</p>
-                            <p class="text-sm text-gray-300">{{ $service->category ?: 'Uncategorized' }}</p>
+                            <!-- ✅ Booking Form -->
+                            <form action="{{ route('customer.book.service', $service->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="bg-orange-500 hover:bg-orange-600 px-3 py-1 rounded-md text-white font-medium text-xs">
+                                    Book Now
+                                </button>
+                            </form>
                         </div>
                     </div>
-
-                    <!-- 👤 Provider Info + Book Button -->
-                    <!-- 👤 Provider Info + Booking -->
-<div class="p-4 bg-black/50 border-t border-white/10 text-sm text-gray-300 flex justify-between items-center">
-    <div class="flex items-center space-x-2">
-        <i class="bi bi-person-circle text-orange-400"></i>
-        <span>{{ $service->provider->name ?? 'Unknown Provider' }}</span>
-    </div>
-
-    <!-- ✅ Booking Form -->
-    <form action="{{ route('customer.book.service', $service->id) }}" method="POST">
-        @csrf
-        <button type="submit" class="bg-orange-500 hover:bg-orange-600 px-3 py-1 rounded-md text-white font-medium text-xs">
-            Book Now
-        </button>
-    </form>
-</div>
-
-                </div>
+                @endif
             @endforeach
         </div>
     @endif

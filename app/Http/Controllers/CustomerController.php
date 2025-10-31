@@ -28,8 +28,11 @@ class CustomerController extends Controller
                                 ->orWhere('receiver_id', $user->id)
                                 ->count();
 
-        // 💡 Recommended & Recent
-        $recommendedServices = Service::inRandomOrder()->take(6)->get();
+        // 💡 Recommended & Recent (✅ show only approved services)
+        $recommendedServices = Service::where('status', 'approved')
+            ->inRandomOrder()
+            ->take(6)
+            ->get();
 
         // 📅 Recent Bookings
         $recentBookings = Booking::with(['service', 'provider'])
@@ -52,6 +55,7 @@ class CustomerController extends Controller
     {
         $user = Auth::user();
 
+        // Create profile if not yet existing
         $profile = CustomerProfile::firstOrCreate(
             ['user_id' => $user->id],
             [
@@ -81,6 +85,7 @@ class CustomerController extends Controller
 
         $profile = CustomerProfile::firstOrCreate(['user_id' => $user->id]);
 
+        // 🖼 Handle profile photo upload
         if ($request->hasFile('photo')) {
             if ($profile->photo && Storage::disk('public')->exists($profile->photo)) {
                 Storage::disk('public')->delete($profile->photo);
@@ -89,15 +94,23 @@ class CustomerController extends Controller
             $profile->photo = $path;
         }
 
-        $profile->fill($request->only('name', 'bio', 'phone', 'address'))->save();
+        // ✏ Update profile info
+        $profile->fill($request->only('bio', 'phone', 'address'))->save();
 
-        return back()->with('success', 'Profile updated successfully!');
+        // ✏ Update user table name globally
+        $user->name = $request->input('name');
+        $user->save();
+
+        return redirect()
+            ->route('customer.profile')
+            ->with('success', 'Profile updated successfully!');
     }
 
-    // 🔎 Browse Services
+    // 🔎 Browse Services (with search & category filters)
     public function browseServices(Request $request)
     {
-        $query = Service::query();
+        $query = Service::query()
+            ->where('status', 'approved'); // ✅ Only show approved services
 
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
@@ -112,10 +125,14 @@ class CustomerController extends Controller
         return view('customer.services', compact('services'));
     }
 
+    // 🧾 All Services (simple version)
     public function services()
     {
-        // Fetch all available services from providers
-        $services = Service::latest()->get();
+        // ✅ Only fetch approved services
+        $services = Service::where('status', 'approved')
+            ->latest()
+            ->get();
+
         return view('customer.services', compact('services'));
     }
 
@@ -126,7 +143,7 @@ class CustomerController extends Controller
 
         $conversations = Message::where('sender_id', $user->id)
                                 ->orWhere('receiver_id', $user->id)
-                                ->with('sender', 'receiver')
+                                ->with(['sender', 'receiver'])
                                 ->latest()
                                 ->get();
 

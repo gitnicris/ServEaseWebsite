@@ -113,28 +113,36 @@ public function dashboard()
     }
 
     // 🟢 Create New Service
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'category' => 'nullable|string|max:255',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:4096',
-        ]);
+    // 🟢 Create New Service (auto set status = pending)
+public function store(Request $request)
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'required|string',
+        'price' => 'required|numeric|min:0',
+        'category' => 'nullable|string|max:255',
+        'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:4096',
+    ]);
 
-        $data = $request->only('title', 'description', 'price', 'category');
+    $data = $request->only('title', 'description', 'price', 'category');
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('services', 'public');
-        }
-
-        $data['user_id'] = Auth::id();
-
-        Service::create($data);
-
-        return redirect()->route('provider.services')->with('success', 'Service created successfully!');
+    if ($request->hasFile('image')) {
+        $data['image'] = $request->file('image')->store('services', 'public');
     }
+
+    // 👤 Link to current provider
+    $data['user_id'] = Auth::id();
+
+    // 🕒 Default status is pending (awaiting admin approval)
+    $data['status'] = 'pending';
+
+    Service::create($data);
+
+    return redirect()
+        ->route('provider.services')
+        ->with('success', 'Service submitted successfully! Waiting for admin approval.');
+}
+
 
     // ✏️ Edit Service
     public function edit(Service $service)

@@ -17,4 +17,8 @@ class CustomerProfile extends Model
         'address',
         'photo',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

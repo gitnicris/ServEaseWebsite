@@ -12,9 +12,11 @@ class PageController extends Controller
         return view('pages.home');
     }
 
+    // 🛍 Show only approved services publicly
     public function services()
     {
         $services = Service::with('provider')
+                        ->where('status', 'approved') // ✅ only approved
                         ->latest()
                         ->get();
 

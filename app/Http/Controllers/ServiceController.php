@@ -9,12 +9,24 @@ use Illuminate\Support\Facades\Storage;
 
 class ServiceController extends Controller
 {
+    // 📋 Provider: View their own services (regardless of status)
     public function index()
     {
         $services = Service::where('user_id', Auth::id())->latest()->get();
         return view('provider.services', compact('services'));
     }
 
+    // 🌍 Public / Customer: Only show approved services
+    public function browse()
+    {
+        $services = Service::where('status', 'approved')
+            ->latest()
+            ->get();
+
+        return view('pages.services', compact('services'));
+    }
+
+    // ➕ Provider: Create new service → automatically pending
     public function store(Request $request)
     {
         $request->validate([
@@ -27,6 +39,7 @@ class ServiceController extends Controller
 
         $data = $request->only(['title', 'description', 'price', 'category']);
         $data['user_id'] = Auth::id();
+        $data['status'] = 'pending'; // 🕒 Waiting for admin approval
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('services', 'public');
@@ -34,15 +47,18 @@ class ServiceController extends Controller
 
         Service::create($data);
 
-        return redirect()->route('provider.dashboard')->with('success', 'Service posted successfully!');
+        return redirect()->route('provider.services')
+            ->with('success', 'Your service has been submitted for admin approval.');
     }
 
+    // ✏️ Provider: Edit service (requires re-approval)
     public function edit(Service $service)
     {
         if ($service->user_id !== Auth::id()) abort(403);
         return view('provider.edit-service', compact('service'));
     }
 
+    // 💾 Update service and mark as pending again
     public function update(Request $request, Service $service)
     {
         if ($service->user_id !== Auth::id()) abort(403);
@@ -56,6 +72,7 @@ class ServiceController extends Controller
         ]);
 
         $data = $request->only(['title', 'description', 'price', 'category']);
+        $data['status'] = 'pending'; // 🔄 Must be reapproved after editing
 
         if ($request->hasFile('image')) {
             if ($service->image && Storage::disk('public')->exists($service->image)) {
@@ -66,9 +83,11 @@ class ServiceController extends Controller
 
         $service->update($data);
 
-        return redirect()->route('provider.dashboard')->with('success', 'Service updated successfully!');
+        return redirect()->route('provider.services')
+            ->with('success', 'Service updated and sent for re-approval.');
     }
 
+    // ❌ Delete service (only owner can)
     public function destroy(Service $service)
     {
         if ($service->user_id !== Auth::id()) abort(403);
@@ -79,6 +98,7 @@ class ServiceController extends Controller
 
         $service->delete();
 
-        return redirect()->route('provider.dashboard')->with('success', 'Service deleted.');
+        return redirect()->route('provider.services')
+            ->with('success', 'Service deleted successfully.');
     }
 }

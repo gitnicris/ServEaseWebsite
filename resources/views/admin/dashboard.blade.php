@@ -47,8 +47,14 @@
             <h2 class="text-2xl font-bold text-orange-400 mb-6">ServEase Admin</h2>
             <nav class="space-y-3">
                 <a href="{{ route('admin.dashboard') }}" class="block hover:text-orange-400">🏠 Dashboard</a>
-                <a href="#" class="block hover:text-orange-400">🧑‍🔧 Providers</a>
-                <a href="#" class="block hover:text-orange-400">👥 Customers</a>
+<a href="{{ route('admin.providers') }}" 
+   class="block hover:text-orange-400 {{ request()->routeIs('admin.providers') ? 'text-orange-400 font-semibold' : '' }}">
+   🧑‍🔧 Providers
+</a>
+<a href="{{ route('admin.customers') }}" 
+   class="block hover:text-orange-400 {{ request()->routeIs('admin.customers') ? 'text-orange-400 font-semibold' : '' }}">
+   👥 Customers
+</a>
                 <a href="{{ route('admin.services.pending') }}" class="block hover:text-orange-400">🧾 Pending Services</a>
                 <a href="#" class="block hover:text-orange-400">⚙️ Settings</a>
             </nav>

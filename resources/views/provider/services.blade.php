@@ -34,6 +34,18 @@
                         {{ $service->description }}
                     </p>
                     <p class="mt-3 font-bold text-orange-400">₱{{ number_format($service->price, 2) }}</p>
+
+                    {{-- 🟡 Status Badge --}}
+                    <div class="mt-3">
+                        @if ($service->status === 'pending')
+                            <span class="bg-yellow-500 text-white text-xs px-2 py-1 rounded">Pending Approval</span>
+                        @elseif ($service->status === 'approved')
+                            <span class="bg-green-500 text-white text-xs px-2 py-1 rounded">Approved</span>
+                        @elseif ($service->status === 'rejected')
+                            <span class="bg-red-500 text-white text-xs px-2 py-1 rounded">Rejected</span>
+                        @endif
+                    </div>
+
                     <div class="flex justify-end space-x-2 mt-4">
                         <a href="{{ route('provider.services.edit', $service->id) }}" 
                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm">

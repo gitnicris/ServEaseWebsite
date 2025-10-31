@@ -9,29 +9,50 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\MessageController;
 
-// 🌐 Public Pages
+/*
+|--------------------------------------------------------------------------
+| 🌐 Public Routes
+|--------------------------------------------------------------------------
+*/
 Route::controller(PageController::class)->group(function () {
     Route::get('/', 'home')->name('home');
-    Route::get('/services', 'services')->name('services.index');
     Route::get('/about', 'about')->name('about');
 });
 
-// 👑 Admin Routes
+// 🛍 Publicly visible services (approved only)
+Route::get('/services', [ServiceController::class, 'browse'])->name('services.index');
+
+/*
+|--------------------------------------------------------------------------
+| 👑 Admin Routes
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->as('admin.')
     ->group(function () {
-        // Dashboard
+        // 🏠 Dashboard
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-        // Pending Services Management
+        // 🧾 Pending Services Management
         Route::get('/services/pending', [AdminController::class, 'pendingServices'])->name('services.pending');
         Route::post('/services/{service}/approve', [AdminController::class, 'approveService'])->name('services.approve');
         Route::post('/services/{service}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
+
+        // 🧑‍🔧 Providers Management
+        Route::get('/providers', [AdminController::class, 'providers'])->name('providers');
+        Route::get('/providers/{provider}', [AdminController::class, 'viewProvider'])->name('providers.view');
+
+        // 👥 Customers Management
+        Route::get('/customers', [AdminController::class, 'customers'])->name('customers');
+        Route::get('/customers/{customer}', [AdminController::class, 'viewCustomer'])->name('customers.view');
     });
 
-
-// 🧰 PROVIDER ROUTES
+/*
+|--------------------------------------------------------------------------
+| 🧰 Provider Routes
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth', 'role:provider'])
     ->prefix('provider')
     ->as('provider.')
@@ -53,34 +74,46 @@ Route::middleware(['auth', 'role:provider'])
 
         // 💬 Messaging (Provider side)
         Route::prefix('messages')->group(function () {
-            Route::get('/', [MessageController::class, 'indexList'])->name('messages.index'); // 🧩 list of customers
-            Route::get('/{bookingId}', [MessageController::class, 'index'])->name('messages.chat'); // 🗨 open chat
-            Route::post('/{bookingId}', [MessageController::class, 'send'])->name('messages.send'); // 📤 send message
+            Route::get('/', [MessageController::class, 'indexList'])->name('messages.index');
+            Route::get('/{bookingId}', [MessageController::class, 'index'])->name('messages.chat');
+            Route::post('/{bookingId}', [MessageController::class, 'send'])->name('messages.send');
         });
     });
 
-// 👤 CUSTOMER ROUTES
+/*
+|--------------------------------------------------------------------------
+| 👤 Customer Routes
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth', 'role:customer'])
     ->prefix('customer')
     ->as('customer.')
     ->group(function () {
-        // Dashboard & Profile
+        // 🏠 Dashboard
         Route::get('/dashboard', [CustomerController::class, 'dashboard'])->name('dashboard');
-        Route::get('/profile', [CustomerController::class, 'profile'])->name('profile');
-        Route::put('/profile', [CustomerController::class, 'updateProfile'])->name('updateProfile');
 
-        // ✅ Browse & Book Services
+        // 👤 Profile
+        Route::get('/profile', [CustomerController::class, 'profile'])->name('profile');
+        Route::post('/profile/update', [CustomerController::class, 'updateProfile'])->name('profile.update');
+
+        // 🔎 Browse & Book Services
         Route::get('/services', [CustomerController::class, 'browseServices'])->name('services');
-        Route::get('/bookings', [CustomerController::class, 'bookings'])->name('bookings');
         Route::post('/book-service/{service}', [BookingController::class, 'bookService'])->name('book.service');
 
-        // 💬 Messaging (Customer side)
+        // 📅 My Bookings
+        Route::get('/bookings', [CustomerController::class, 'bookings'])->name('bookings');
+
+        // 💬 Messages
         Route::prefix('messages')->group(function () {
-            Route::get('/', [MessageController::class, 'indexList'])->name('messages.index'); // 🧩 list of providers
-            Route::get('/{bookingId}', [MessageController::class, 'index'])->name('messages.chat'); // 🗨 open chat
-            Route::post('/{bookingId}', [MessageController::class, 'send'])->name('messages.send'); // 📤 send message
+            Route::get('/', [MessageController::class, 'indexList'])->name('messages.index');
+            Route::get('/{bookingId}', [MessageController::class, 'index'])->name('messages.chat');
+            Route::post('/{bookingId}', [MessageController::class, 'send'])->name('messages.send');
         });
     });
 
-// 🔐 Authentication Routes
+/*
+|--------------------------------------------------------------------------
+| 🔐 Authentication Routes
+|--------------------------------------------------------------------------
+*/
 require __DIR__ . '/auth.php';
