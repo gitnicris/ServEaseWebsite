@@ -38,7 +38,6 @@ class AdminController extends Controller
         ));
     }
 
-    // 🕒 View Pending Services
     public function pendingServices()
     {
         $pendingServices = Service::where('status', 'pending')
@@ -56,7 +55,7 @@ class AdminController extends Controller
         ));
     }
 
-    // ✅ Approve Service
+    
     public function approveService(Service $service)
     {
         try {
@@ -67,7 +66,6 @@ class AdminController extends Controller
         }
     }
 
-    // ❌ Reject Service
     public function rejectService(Service $service)
     {
         try {
@@ -78,18 +76,18 @@ class AdminController extends Controller
         }
     }
 
-    // 🧑‍🔧 View All Providers
+    
     public function providers()
     {
         $providers = User::where('role', 'provider')
-            ->withCount('services') // Count how many services each provider posted
+            ->withCount('services') 
             ->latest()
             ->paginate(10);
 
         return view('admin.providers.index', compact('providers'));
     }
 
-    // 👁 View Single Provider Profile
+    
     public function viewProvider(User $provider)
     {
         if ($provider->role !== 'provider') {
@@ -110,7 +108,7 @@ class AdminController extends Controller
         return view('admin.providers.view', compact('provider', 'services', 'bookings'));
     }
 
-    // 👥 View All Customers
+    
     public function customers()
     {
         $customers = User::where('role', 'customer')
@@ -120,14 +118,14 @@ class AdminController extends Controller
         return view('admin.customers.index', compact('customers'));
     }
 
-    // 👁 View Single Customer Profile
+    
     public function viewCustomer(User $customer)
     {
         if ($customer->role !== 'customer') {
             abort(404);
         }
 
-        // Get all bookings made by this customer
+        
         $bookings = Booking::with(['service', 'provider'])
             ->where('customer_id', $customer->id)
             ->latest()
