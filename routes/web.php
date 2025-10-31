@@ -9,24 +9,16 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\MessageController;
 
-/*
-|--------------------------------------------------------------------------
-| 🌐 Public Routes
-|--------------------------------------------------------------------------
-*/
+
 Route::controller(PageController::class)->group(function () {
     Route::get('/', 'home')->name('home');
     Route::get('/about', 'about')->name('about');
 });
 
-// 🛍 Publicly visible services (approved only)
+
 Route::get('/services', [ServiceController::class, 'browse'])->name('services.index');
 
-/*
-|--------------------------------------------------------------------------
-| 👑 Admin Routes
-|--------------------------------------------------------------------------
-*/
+
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->as('admin.')
@@ -48,11 +40,7 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/customers/{customer}', [AdminController::class, 'viewCustomer'])->name('customers.view');
     });
 
-/*
-|--------------------------------------------------------------------------
-| 🧰 Provider Routes
-|--------------------------------------------------------------------------
-*/
+
 Route::middleware(['auth', 'role:provider'])
     ->prefix('provider')
     ->as('provider.')
@@ -80,11 +68,7 @@ Route::middleware(['auth', 'role:provider'])
         });
     });
 
-/*
-|--------------------------------------------------------------------------
-| 👤 Customer Routes
-|--------------------------------------------------------------------------
-*/
+
 Route::middleware(['auth', 'role:customer'])
     ->prefix('customer')
     ->as('customer.')
@@ -111,9 +95,5 @@ Route::middleware(['auth', 'role:customer'])
         });
     });
 
-/*
-|--------------------------------------------------------------------------
-| 🔐 Authentication Routes
-|--------------------------------------------------------------------------
-*/
+
 require __DIR__ . '/auth.php';
