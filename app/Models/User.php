@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Service;
 use App\Models\ProviderProfile;
+use App\Models\CustomerProfile;
 
 class User extends Authenticatable
 {
@@ -47,21 +48,34 @@ class User extends Authenticatable
     {
         return $this->hasOne(ProviderProfile::class, 'user_id');
     }
+    public function customerProfile()
+{
+    return $this->hasOne(CustomerProfile::class, 'user_id');
+}
+
 
     // 🧠 Helper to easily get user’s photo (fallback if missing)
     public function getProfilePhotoUrlAttribute()
-    {
-        if ($this->providerProfile && $this->providerProfile->photo) {
-            return asset('storage/' . $this->providerProfile->photo);
-        }
-
-        if ($this->photo) {
-            return asset('storage/' . $this->photo);
-        }
-
-        // 🅰️ fallback: initial-based avatar
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name);
+{
+    // 🧑‍🔧 Check Provider Profile first
+    if ($this->providerProfile && $this->providerProfile->photo) {
+        return asset('storage/' . $this->providerProfile->photo);
     }
+
+    // 🧑‍💼 Then check Customer Profile
+    if ($this->customerProfile && $this->customerProfile->photo) {
+        return asset('storage/' . $this->customerProfile->photo);
+    }
+
+    // 📸 If user has a direct photo column
+    if ($this->photo) {
+        return asset('storage/' . $this->photo);
+    }
+
+    // 🅰️ Fallback avatar
+    return 'https://ui-avatars.com/api/?name=' . urlencode($this->name);
+}
+
    public function customerBookings()
 {
     return $this->hasMany(Booking::class, 'customer_id');

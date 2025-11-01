@@ -49,8 +49,8 @@
                Add or Manage Services
             </a>
 
-            <a href="#" 
-               class="bg-purple-500 hover:bg-purple-600 text-white font-medium px-4 py-2 rounded-lg shadow transition">
+            <a href="{{ route('provider.bookings') }}" 
+               class="bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-2 rounded-lg shadow transition">
                View Bookings
             </a>
         </div>

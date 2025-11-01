@@ -153,6 +153,7 @@
         <a href="{{ route('admin.dashboard') }}" class="hover:text-orange-400">Dashboard</a>
     @else
         <a href="{{ route('customer.dashboard') }}" class="hover:text-orange-400">Dashboard</a>
+        <a href="{{ route('customer.profile') }}" class="hover:text-orange-400">Profile</a>
         <a href="{{ route('customer.bookings') }}" class="hover:text-orange-400">My Bookings</a>
         <a href="{{ route('customer.messages.index') }}" class="hover:text-orange-400 flex items-center space-x-2">
             <i class="bi bi-chat-dots"></i>

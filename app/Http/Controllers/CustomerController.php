@@ -69,8 +69,15 @@ class CustomerController extends Controller
 
         return view('customer.profile', compact('user', 'profile'));
     }
+    public function editProfile()
+{
+    $user = Auth::user();
+    $profile = CustomerProfile::firstOrCreate(['user_id' => $user->id]);
+    return view('customer.edit-profile', compact('user', 'profile'));
+}
 
-    // 🔄 Update Profile
+
+    // 🧩 Update Customer Profile (Fixed image saving)
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
@@ -85,22 +92,27 @@ class CustomerController extends Controller
 
         $profile = CustomerProfile::firstOrCreate(['user_id' => $user->id]);
 
-        // 🖼 Handle profile photo upload
+        // 🖼️ Handle profile photo upload
         if ($request->hasFile('photo')) {
+            // Delete old photo if exists
             if ($profile->photo && Storage::disk('public')->exists($profile->photo)) {
                 Storage::disk('public')->delete($profile->photo);
             }
+
+            // Save new photo
             $path = $request->file('photo')->store('customer_photos', 'public');
             $profile->photo = $path;
         }
 
-        // ✏ Update profile info
-        $profile->fill($request->only('bio', 'phone', 'address'))->save();
+        // ✏️ Update profile info
+        $profile->fill($request->only(['bio', 'phone', 'address']));
+        $profile->save();
 
-        // ✏ Update user table name globally
+        // ✏️ Update global user name
         $user->name = $request->input('name');
         $user->save();
 
+        // ✅ Redirect back to profile with success message
         return redirect()
             ->route('customer.profile')
             ->with('success', 'Profile updated successfully!');

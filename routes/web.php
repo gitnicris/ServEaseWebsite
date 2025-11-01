@@ -45,20 +45,22 @@ Route::middleware(['auth', 'role:provider'])
     ->prefix('provider')
     ->as('provider.')
     ->group(function () {
-        // Dashboard & Profile
+        // 🏠 Dashboard & Profile
         Route::get('/dashboard', [ProviderController::class, 'dashboard'])->name('dashboard');
         Route::get('/profile', [ProviderController::class, 'profile'])->name('profile');
         Route::put('/profile', [ProviderController::class, 'updateProfile'])->name('updateProfile');
 
-        // ✅ Services Management
+        // 🛠️ Services Management
         Route::get('/services', [ProviderController::class, 'services'])->name('services');
         Route::post('/services/store', [ProviderController::class, 'store'])->name('store');
         Route::get('/services/{service}/edit', [ProviderController::class, 'edit'])->name('services.edit');
         Route::put('/services/{service}', [ProviderController::class, 'update'])->name('services.update');
         Route::delete('/services/{service}', [ProviderController::class, 'destroy'])->name('services.destroy');
 
-        // 📅 Bookings
-        Route::get('/bookings', [BookingController::class, 'providerBookings'])->name('bookings');
+        // 📅 Bookings Management
+        Route::get('/bookings', [ProviderController::class, 'bookings'])->name('bookings');
+        Route::post('/bookings/{id}/approve', [ProviderController::class, 'approveBooking'])->name('bookings.approve');
+        Route::post('/bookings/{id}/reject', [ProviderController::class, 'rejectBooking'])->name('bookings.reject');
 
         // 💬 Messaging (Provider side)
         Route::prefix('messages')->group(function () {
@@ -73,21 +75,17 @@ Route::middleware(['auth', 'role:customer'])
     ->prefix('customer')
     ->as('customer.')
     ->group(function () {
-        // 🏠 Dashboard
         Route::get('/dashboard', [CustomerController::class, 'dashboard'])->name('dashboard');
 
-        // 👤 Profile
         Route::get('/profile', [CustomerController::class, 'profile'])->name('profile');
-        Route::post('/profile/update', [CustomerController::class, 'updateProfile'])->name('profile.update');
+        Route::get('/profile/edit', [CustomerController::class, 'editProfile'])->name('profile.edit');
+        Route::put('/profile/update', [CustomerController::class, 'updateProfile'])->name('profile.update');
 
-        // 🔎 Browse & Book Services
         Route::get('/services', [CustomerController::class, 'browseServices'])->name('services');
         Route::post('/book-service/{service}', [BookingController::class, 'bookService'])->name('book.service');
 
-        // 📅 My Bookings
         Route::get('/bookings', [CustomerController::class, 'bookings'])->name('bookings');
 
-        // 💬 Messages
         Route::prefix('messages')->group(function () {
             Route::get('/', [MessageController::class, 'indexList'])->name('messages.index');
             Route::get('/{bookingId}', [MessageController::class, 'index'])->name('messages.chat');
