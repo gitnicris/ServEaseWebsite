@@ -80,4 +80,28 @@ class BookingController extends Controller
 
         return redirect()->back()->with('success', 'Booking status updated successfully!');
     }
+    // ✅ Cancel booking (for customers)
+public function cancelBooking(Booking $booking)
+{
+    if ($booking->customer_id !== auth()->id()) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    $booking->update(['status' => 'cancelled']);
+
+    return redirect()->route('customer.bookings')->with('error', '❌ Booking has been cancelled.');
+}
+
+// ✅ Mark booking as completed (for customers)
+public function completeBooking(Booking $booking)
+{
+    if ($booking->customer_id !== auth()->id()) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    $booking->update(['status' => 'completed']);
+
+    return redirect()->route('customer.bookings')->with('success', '✅ Booking marked as completed!');
+}
+
 }

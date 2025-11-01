@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'My Bookings')
+@section('title', 'Pending Bookings')
 
 @section('content')
 <div class="container mx-auto">
-    <h1 class="text-3xl font-semibold mb-6 text-orange-500">My Bookings</h1>
+    <h1 class="text-3xl font-semibold mb-6 text-yellow-500">Pending Bookings</h1>
 
     @if($bookings->isEmpty())
         <div class="bg-white p-6 rounded-lg shadow text-center">
-            <p class="text-gray-600">No bookings found.</p>
+            <p class="text-gray-600">No pending bookings at the moment.</p>
         </div>
     @else
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -28,14 +28,8 @@
                         </p>
 
                         <p class="text-gray-700">
-                            <strong>Status:</strong> 
-                            <span class="capitalize {{
-                                $booking->status === 'pending' ? 'text-yellow-500' :
-                                ($booking->status === 'accepted' ? 'text-green-500' :
-                                ($booking->status === 'completed' ? 'text-blue-500' : 'text-red-500'))
-                            }}">
-                                {{ $booking->status }}
-                            </span>
+                            <strong>Status:</strong>
+                            <span class="capitalize text-yellow-500">{{ $booking->status }}</span>
                         </p>
 
                         @if($booking->notes)
@@ -44,15 +38,24 @@
                             </p>
                         @endif
 
-                        {{-- Message button for active bookings --}}
-                        @if(in_array($booking->status, ['accepted', 'completed']))
-                            <div class="mt-4 text-right">
-                                <a href="{{ route('provider.messages.chat', $booking->id) }}"
-                                   class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
-                                   Message Customer
-                                </a>
-                            </div>
-                        @endif
+                        {{-- ✅ Approve / ❌ Reject Buttons --}}
+                        <div class="flex justify-between items-center mt-4">
+                            <form action="{{ route('provider.bookings.approve', $booking->id) }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
+                                    Approve
+                                </button>
+                            </form>
+
+                            <form action="{{ route('provider.bookings.reject', $booking->id) }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
+                                    Reject
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             @endforeach

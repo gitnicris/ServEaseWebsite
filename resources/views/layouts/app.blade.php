@@ -25,7 +25,7 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--violet), var(--orange));
+            background: linear-gradient(135deg, var(--violet), var(--orange)); 
             color: white;
             min-height: 100vh;
         }
@@ -144,6 +144,7 @@
         <a href="{{ route('provider.dashboard') }}" class="hover:text-orange-400">Dashboard</a>
         <a href="{{ route('provider.profile') }}" class="hover:text-orange-400">Profile</a>
         <a href="{{ route('provider.services') }}" class="hover:text-orange-400">My Services</a>
+        <a href="{{ route('provider.pending') }}" class="hover:text-orange-400">Pending Bookings</a>
         <a href="{{ route('provider.bookings') }}" class="hover:text-orange-400">Bookings</a>
         <a href="{{ route('provider.messages.index') }}" class="hover:text-orange-400 flex items-center space-x-2">
             <i class="bi bi-chat-dots"></i>

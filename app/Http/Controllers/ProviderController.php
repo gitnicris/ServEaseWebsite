@@ -16,51 +16,36 @@ class ProviderController extends Controller
         $this->middleware(['auth', 'role:provider']);
     }
 
-    // 📊 Dashboard - Overview + Services
+    // 📊 Dashboard
     public function dashboard()
     {
         $user = Auth::user();
 
-        // Provider's services
         $services = Service::where('user_id', $user->id)->get();
-
-        // Provider's bookings
         $bookings = Booking::whereHas('service', function ($query) use ($user) {
             $query->where('user_id', $user->id);
         })->get();
 
-        // Stats
-        $totalServices = $services->count();
-        $totalBookings = $bookings->count();
-        $totalEarnings = $bookings->where('status', 'completed')->sum('price');
-
-        // Show 5 most recent services
-        $recentServices = $services->take(5);
-
-        return view('provider.dashboard', compact(
-            'user',
-            'totalServices',
-            'totalBookings',
-            'totalEarnings',
-            'recentServices'
-        ));
+        return view('provider.dashboard', [
+            'user' => $user,
+            'totalServices' => $services->count(),
+            'totalBookings' => $bookings->count(),
+            'totalEarnings' => $bookings->where('status', 'completed')->sum('price'),
+            'recentServices' => $services->take(5)
+        ]);
     }
 
-    // 🛠️ My Services Page
+    // 🛠️ My Services
     public function services()
     {
-        $providerId = Auth::id();
-        $services = Service::where('user_id', $providerId)->latest()->get();
-
+        $services = Service::where('user_id', Auth::id())->latest()->get();
         return view('provider.services', compact('services'));
     }
 
-    // 👤 Profile Page
+    // 👤 Profile
     public function profile()
     {
         $user = Auth::user();
-
-        // Create profile if not yet existing
         $profile = ProviderProfile::firstOrCreate(
             ['user_id' => $user->id],
             [
@@ -75,7 +60,7 @@ class ProviderController extends Controller
         return view('provider.profile', compact('user', 'profile'));
     }
 
-    // 🧩 Update Profile
+    // ✏️ Update Profile
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
@@ -102,15 +87,12 @@ class ProviderController extends Controller
         $profile->fill($request->only('bio', 'phone', 'address'));
         $profile->save();
 
-        $user->name = $request->input('name');
-        $user->save();
+        $user->update(['name' => $request->name]);
 
-        return redirect()
-            ->route('provider.profile')
-            ->with('success', 'Profile updated successfully!');
+        return redirect()->route('provider.profile')->with('success', 'Profile updated successfully!');
     }
 
-    // 🟢 Create New Service (auto set status = pending)
+    // 🟢 Store New Service
     public function store(Request $request)
     {
         $request->validate([
@@ -122,19 +104,18 @@ class ProviderController extends Controller
         ]);
 
         $data = $request->only('title', 'description', 'price', 'category');
+        $data['user_id'] = Auth::id();
+        $data['status'] = 'pending';
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('services', 'public');
         }
 
-        $data['user_id'] = Auth::id();
-        $data['status'] = 'pending'; // Awaiting admin approval
-
         Service::create($data);
 
         return redirect()
             ->route('provider.services')
-            ->with('success', 'Service submitted successfully! Waiting for admin approval.');
+            ->with('success', 'Service submitted successfully! Awaiting admin approval.');
     }
 
     // ✏️ Edit Service
@@ -181,50 +162,70 @@ class ProviderController extends Controller
         }
 
         $service->delete();
-
         return redirect()->route('provider.services')->with('success', 'Service deleted successfully.');
     }
 
     // 🔐 Ownership Check
     private function authorizeOwner(Service $service)
     {
-        if ($service->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        abort_if($service->user_id !== Auth::id(), 403, 'Unauthorized action.');
     }
 
-    // 📅 Provider Bookings Page
+    // 🕓 Pending Bookings
+    public function pendingBookings()
+    {
+        $bookings = Booking::where('status', 'pending')
+            ->whereHas('service', fn($q) => $q->where('user_id', Auth::id()))
+            ->with(['service', 'customer'])
+            ->latest()
+            ->get();
+
+        $approvedCount = Booking::where('status', 'accepted')
+            ->whereHas('service', fn($q) => $q->where('user_id', Auth::id()))
+            ->count();
+
+        $cancelledCount = Booking::where('status', 'cancelled')
+            ->whereHas('service', fn($q) => $q->where('user_id', Auth::id()))
+            ->count();
+
+        return view('provider.pending', compact('bookings', 'approvedCount', 'cancelledCount'));
+    }
+
+    // ✅ All Bookings (combined view)
     public function bookings()
     {
-        $providerId = Auth::id();
-
-        $bookings = Booking::with(['customer', 'service'])
-            ->whereHas('service', function ($query) use ($providerId) {
-                $query->where('user_id', $providerId);
-            })
+        $bookings = Booking::whereHas('service', fn($q) => $q->where('user_id', Auth::id()))
+            ->with(['service', 'customer'])
             ->latest()
             ->get();
 
         return view('provider.bookings', compact('bookings'));
     }
 
-    // ✅ Approve Booking
-    public function approveBooking($id)
+    // ✅ Approve Booking (redirect back to pending)
+    public function approveBooking(Booking $booking)
     {
-        $booking = Booking::findOrFail($id);
-        $booking->status = 'approved';
-        $booking->save();
-
-        return redirect()->back()->with('success', 'Booking approved successfully.');
+    try {
+        $booking->update(['status' => 'accepted']);
+        return redirect()->route('provider.pending')
+            ->with('success', '✅ Booking approved successfully!');
+    } catch (\Exception $e) {
+        return redirect()->route('provider.pending')
+            ->with('error', 'Failed to approve booking.');
+    }
     }
 
-    // ❌ Reject Booking
-    public function rejectBooking($id)
+// ❌ Reject Booking (redirect back to pending)
+    public function rejectBooking(Booking $booking)
     {
-        $booking = Booking::findOrFail($id);
-        $booking->status = 'rejected';
-        $booking->save();
-
-        return redirect()->back()->with('error', 'Booking rejected.');
+    try {
+        $booking->update(['status' => 'cancelled']);
+        return redirect()->route('provider.pending')
+            ->with('error', '❌ Booking rejected.');
+    } catch (\Exception $e) {
+        return redirect()->route('provider.pending')
+            ->with('error', 'Failed to reject booking.');
     }
+    }
+
 }

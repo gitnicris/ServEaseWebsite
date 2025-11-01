@@ -19,36 +19,44 @@ class CustomerController extends Controller
 
     // 🏠 Dashboard
     public function dashboard()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        // 📊 Dynamic Stats
-        $totalBookings = Booking::where('customer_id', $user->id)->count();
-        $totalMessages = Message::where('sender_id', $user->id)
-                                ->orWhere('receiver_id', $user->id)
-                                ->count();
+    // 📊 Dynamic Stats
+    $totalBookings = Booking::where('customer_id', $user->id)->count();
+    $completedBookings = Booking::where('customer_id', $user->id)
+        ->where('status', 'completed')
+        ->count();
+    $cancelledBookings = Booking::where('customer_id', $user->id)
+        ->where('status', 'cancelled')
+        ->count();
+    $totalMessages = Message::where('sender_id', $user->id)
+                            ->orWhere('receiver_id', $user->id)
+                            ->count();
 
-        // 💡 Recommended & Recent (✅ show only approved services)
-        $recommendedServices = Service::where('status', 'approved')
-            ->inRandomOrder()
-            ->take(6)
-            ->get();
+    // 💡 Recommended & Recent
+    $recommendedServices = Service::where('status', 'approved')
+        ->inRandomOrder()
+        ->take(6)
+        ->get();
 
-        // 📅 Recent Bookings
-        $recentBookings = Booking::with(['service', 'provider'])
-            ->where('customer_id', $user->id)
-            ->latest()
-            ->take(5)
-            ->get();
+    // 📅 Recent Bookings
+    $recentBookings = Booking::with(['service', 'provider'])
+        ->where('customer_id', $user->id)
+        ->latest()
+        ->take(5)
+        ->get();
 
-        return view('customer.dashboard', compact(
-            'user',
-            'totalBookings',
-            'totalMessages',
-            'recommendedServices',
-            'recentBookings'
-        ));
-    }
+    return view('customer.dashboard', compact(
+        'user',
+        'totalBookings',
+        'completedBookings',
+        'cancelledBookings',
+        'totalMessages',
+        'recommendedServices',
+        'recentBookings'
+    ));
+}
 
     // 👤 Profile Page
     public function profile()
@@ -172,4 +180,24 @@ class CustomerController extends Controller
 
         return view('customer.bookings', compact('bookings'));
     }
+    public function cancelBooking(Booking $booking)
+{
+    // 🔒 Security: Ensure only the owner can cancel their booking
+    if ($booking->customer_id !== Auth::id()) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    // 🕒 Allow cancel only if not completed or already cancelled
+    if (in_array($booking->status, ['completed', 'cancelled'])) {
+        return back()->with('error', 'This booking cannot be cancelled.');
+    }
+
+    // ❌ Update status to cancelled
+    $booking->update(['status' => 'cancelled']);
+
+    return redirect()
+        ->route('customer.bookings')
+        ->with('error', 'Booking cancelled successfully.');
+}
+
 }

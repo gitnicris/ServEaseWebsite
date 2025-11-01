@@ -59,8 +59,16 @@ Route::middleware(['auth', 'role:provider'])
 
         // 📅 Bookings Management
         Route::get('/bookings', [ProviderController::class, 'bookings'])->name('bookings');
-        Route::post('/bookings/{id}/approve', [ProviderController::class, 'approveBooking'])->name('bookings.approve');
-        Route::post('/bookings/{id}/reject', [ProviderController::class, 'rejectBooking'])->name('bookings.reject');
+        Route::get('/bookings/pending', [ProviderController::class, 'pendingBookings'])
+            ->name('bookings.pending');
+        // Alias for backward compatibility (Blade using provider.pending)
+        Route::get('/bookings/pending', [ProviderController::class, 'pendingBookings'])
+            ->name('pending');
+
+        Route::post('/bookings/{booking}/approve', [ProviderController::class, 'approveBooking'])
+            ->name('bookings.approve');
+        Route::post('/bookings/{booking}/reject', [ProviderController::class, 'rejectBooking'])
+            ->name('bookings.reject');
 
         // 💬 Messaging (Provider side)
         Route::prefix('messages')->group(function () {
@@ -69,6 +77,7 @@ Route::middleware(['auth', 'role:provider'])
             Route::post('/{bookingId}', [MessageController::class, 'send'])->name('messages.send');
         });
     });
+
 
 
 Route::middleware(['auth', 'role:customer'])
@@ -85,6 +94,8 @@ Route::middleware(['auth', 'role:customer'])
         Route::post('/book-service/{service}', [BookingController::class, 'bookService'])->name('book.service');
 
         Route::get('/bookings', [CustomerController::class, 'bookings'])->name('bookings');
+        Route::patch('/bookings/{booking}/cancel', [BookingController::class, 'cancelBooking'])->name('bookings.cancel');
+        Route::patch('/bookings/{booking}/complete', [BookingController::class, 'completeBooking'])->name('bookings.complete');
 
         Route::prefix('messages')->group(function () {
             Route::get('/', [MessageController::class, 'indexList'])->name('messages.index');

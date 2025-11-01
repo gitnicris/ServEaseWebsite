@@ -1,60 +1,95 @@
 @extends('layouts.app')
 
+@section('title', 'My Bookings | ServEase')
+
 @section('content')
-<div class="min-h-screen bg-cover bg-center py-16 px-6"
-     style="background-image: url('/images/background.jpg');">
+<div class="min-h-screen w-full bg-gradient-to-br from-violet-50 via-white to-orange-50 p-6 lg:p-10 rounded-2xl shadow-md">
+    <!-- 🌈 Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-10">
+        <div>
+            <h1 class="text-4xl font-extrabold text-violet-700 mb-2">
+                My Bookings 📅
+            </h1>
+            <p class="text-gray-500">Manage and track all your booked services here.</p>
+        </div>
+        <a href="{{ route('customer.services') }}"
+           class="mt-4 sm:mt-0 inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl font-medium shadow-md transition">
+            <i class="bi bi-cart-fill"></i> Browse More Services
+        </a>
+    </div>
 
-    <div class="max-w-6xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl shadow-xl border border-gray-600 p-8">
-        <h2 class="text-2xl font-bold text-center text-white mb-10">My Bookings</h2>
-
-        @if($bookings->isEmpty())
-            <p class="text-center text-gray-300">You have no bookings yet.</p>
+    <!-- 🧾 Bookings Table -->
+    <div class="bg-white/80 backdrop-blur rounded-2xl shadow-lg border border-gray-200 p-6 overflow-x-auto">
+        @if ($bookings->isEmpty())
+            <p class="text-gray-600 text-center py-8 text-lg">You don’t have any bookings yet.</p>
         @else
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @foreach($bookings as $booking)
-                    <div class="bg-gray-900/70 rounded-2xl shadow-md overflow-hidden border border-gray-700">
-                        {{-- Service Image --}}
-                        <div class="h-48 bg-gray-800 flex items-center justify-center">
-                            @if ($booking->service->image)
-                                <img src="{{ asset('storage/'.$booking->service->image) }}" alt="Service Image" class="h-full w-full object-cover">
-                            @else
-                                <span class="text-gray-400">No Image Available</span>
-                            @endif
-                        </div>
-
-                        {{-- Service Info --}}
-                        <div class="p-5 text-white">
-                            <h3 class="text-xl font-semibold">{{ $booking->service->title }}</h3>
-                            <p class="text-gray-400 text-sm">{{ $booking->service->description }}</p>
-
-                            <div class="mt-3">
-                                <p><span class="text-gray-400">Provider:</span> {{ $booking->provider->name }}</p>
-                                <p><span class="text-gray-400">Price:</span> ₱{{ number_format($booking->service->price, 2) }}</p>
-                                <p><span class="text-gray-400">Status:</span>
-                                    <span class="uppercase text-sm font-semibold
-                                        {{ $booking->status == 'pending' ? 'text-yellow-400' : ($booking->status == 'approved' ? 'text-green-400' : 'text-red-400') }}">
-                                        {{ $booking->status }}
-                                    </span>
-                                </p>
-                            </div>
-
-                            {{-- Action Buttons --}}
-                            <div class="mt-5 flex justify-between">
-                                <a href="{{ route('customer.messages.chat', $booking->id) }}"
-                                   class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white text-sm font-semibold transition">
-                                    <i class="fa-solid fa-message mr-1"></i> Chat
-                                </a>
-
-                                <a href="{{ route('services.index') }}"
-                                   class="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg text-white text-sm font-semibold transition">
-                                    <i class="fa-solid fa-plus mr-1"></i> Book More
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
+            <table class="min-w-full border-collapse text-sm text-gray-700">
+                <thead class="bg-violet-600 text-white uppercase text-xs">
+                    <tr>
+                        <th class="py-3 px-4 text-left rounded-tl-lg">Service</th>
+                        <th class="py-3 px-4 text-left">Provider</th>
+                        <th class="py-3 px-4 text-left">Date</th>
+                        <th class="py-3 px-4 text-left">Status</th>
+                        <th class="py-3 px-4 text-center rounded-tr-lg">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 bg-white">
+                    @foreach ($bookings as $booking)
+                        <tr class="hover:bg-violet-50 transition-all">
+                            <td class="py-4 px-4 font-medium text-gray-800">{{ $booking->service->title ?? 'N/A' }}</td>
+                            <td class="py-4 px-4">{{ $booking->provider->name ?? 'N/A' }}</td>
+                            <td class="py-4 px-4">{{ $booking->created_at->format('M d, Y') }}</td>
+                            <td class="py-4 px-4">
+                                @if ($booking->status === 'completed')
+                                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Completed</span>
+                                @elseif ($booking->status === 'pending')
+                                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">Pending</span>
+                                @elseif ($booking->status === 'accepted')
+                                    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">Accepted</span>
+                                @elseif ($booking->status === 'cancelled')
+                                    <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">Cancelled</span>
+                                @endif
+                            </td>
+                            <td class="py-4 px-4 text-center">
+                                @if ($booking->status === 'pending' || $booking->status === 'accepted')
+                                    <div class="flex justify-center gap-2">
+                                        @if ($booking->status === 'accepted')
+                                            <form action="{{ route('customer.bookings.complete', $booking->id) }}" method="POST" onsubmit="return confirm('Mark this booking as completed?');">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white text-xs px-4 py-2 rounded-lg shadow-md transition">
+                                                    <i class="bi bi-check2-circle"></i> Complete
+                                                </button>
+                                            </form>
+                                        @endif
+                                        <form action="{{ route('customer.bookings.cancel', $booking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white text-xs px-4 py-2 rounded-lg shadow-md transition">
+                                                <i class="bi bi-x-circle"></i> Cancel
+                                            </button>
+                                        </form>
+                                    </div>
+                                @else
+                                    <span class="text-gray-400 text-xs italic">No actions available</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         @endif
     </div>
 </div>
+
+{{-- Sidebar Fix for Logout visibility --}}
+<style>
+    #sidebar {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow-y: auto;
+        padding-bottom: 1rem;
+    }
+</style>
 @endsection
