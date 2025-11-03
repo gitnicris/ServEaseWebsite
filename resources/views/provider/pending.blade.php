@@ -3,63 +3,79 @@
 @section('title', 'Pending Bookings')
 
 @section('content')
-<div class="container mx-auto">
-    <h1 class="text-3xl font-semibold mb-6 text-yellow-500">Pending Bookings</h1>
-
-    @if($bookings->isEmpty())
-        <div class="bg-white p-6 rounded-lg shadow text-center">
-            <p class="text-gray-600">No pending bookings at the moment.</p>
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-10 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        {{-- Page Title --}}
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-violet-500 to-yellow-400 bg-clip-text text-transparent">
+                Pending Bookings
+            </h1>
         </div>
-    @else
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @foreach($bookings as $booking)
-                <div class="card shadow-lg rounded-xl overflow-hidden border border-gray-200">
-                    <div class="p-5">
-                        <h5 class="text-xl font-bold text-violet-600 mb-1">
-                            {{ $booking->service->title }}
-                        </h5>
 
-                        <p class="text-sm text-gray-500 mb-3">
-                            Customer: <span class="font-semibold">{{ $booking->customer->name }}</span>
-                        </p>
+        {{-- Empty State --}}
+        @if($bookings->isEmpty())
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg text-center border border-gray-200 dark:border-gray-700">
+                <p class="text-gray-600 dark:text-gray-300 text-lg">
+                    No pending bookings at the moment.
+                </p>
+            </div>
+        @else
+            {{-- Booking Cards --}}
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                @foreach($bookings as $booking)
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-md hover:shadow-xl transition duration-300">
+                        <div class="p-6">
+                            {{-- Service Title --}}
+                            <h5 class="text-xl font-semibold text-violet-600 dark:text-violet-400 mb-2">
+                                {{ $booking->service->title }}
+                            </h5>
 
-                        <p class="text-gray-700">
-                            <strong>Price:</strong> ₱{{ number_format($booking->price, 2) }}
-                        </p>
-
-                        <p class="text-gray-700">
-                            <strong>Status:</strong>
-                            <span class="capitalize text-yellow-500">{{ $booking->status }}</span>
-                        </p>
-
-                        @if($booking->notes)
-                            <p class="text-gray-600 text-sm mt-2">
-                                <strong>Notes:</strong> {{ $booking->notes }}
+                            {{-- Customer Info --}}
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                                <span class="font-medium">Customer:</span> {{ $booking->customer->name }}
                             </p>
-                        @endif
 
-                        {{-- ✅ Approve / ❌ Reject Buttons --}}
-                        <div class="flex justify-between items-center mt-4">
-                            <form action="{{ route('provider.bookings.approve', $booking->id) }}" method="POST">
-                                @csrf
-                                <button type="submit"
-                                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
-                                    Approve
-                                </button>
-                            </form>
+                            {{-- Price --}}
+                            <p class="text-gray-700 dark:text-gray-200 mb-1">
+                                <span class="font-semibold">Price:</span> ₱{{ number_format($booking->price, 2) }}
+                            </p>
 
-                            <form action="{{ route('provider.bookings.reject', $booking->id) }}" method="POST">
-                                @csrf
-                                <button type="submit"
-                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
-                                    Reject
-                                </button>
-                            </form>
+                            {{-- Status --}}
+                            <p class="text-gray-700 dark:text-gray-200">
+                                <span class="font-semibold">Status:</span>
+                                <span class="capitalize text-yellow-500 font-medium">{{ $booking->status }}</span>
+                            </p>
+
+                            {{-- Notes --}}
+                            @if($booking->notes)
+                                <p class="text-gray-600 dark:text-gray-400 text-sm mt-3 border-t border-gray-200 dark:border-gray-700 pt-2">
+                                    <span class="font-semibold">Notes:</span> {{ $booking->notes }}
+                                </p>
+                            @endif
+
+                            {{-- Action Buttons --}}
+                            <div class="flex justify-between items-center mt-5 gap-3">
+                                <form action="{{ route('provider.bookings.approve', $booking->id) }}" method="POST" class="flex-1">
+                                    @csrf
+                                    <button type="submit"
+                                        class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-medium transition">
+                                        ✅ Approve
+                                    </button>
+                                </form>
+
+                                <form action="{{ route('provider.bookings.reject', $booking->id) }}" method="POST" class="flex-1">
+                                    @csrf
+                                    <button type="submit"
+                                        class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-medium transition">
+                                        ❌ Reject
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
-        </div>
-    @endif
+                @endforeach
+            </div>
+        @endif
+    </div>
 </div>
 @endsection

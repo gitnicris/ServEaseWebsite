@@ -1,21 +1,26 @@
 @extends('layouts.app')
 
+@section('title', 'Messages')
+
 @section('content')
-<div class="min-h-screen bg-gray-900 text-white flex overflow-hidden">
+<div class="flex flex-col md:flex-row h-[calc(100vh-180px)] bg-gray-900 text-white rounded-lg overflow-hidden shadow-lg">
 
     {{-- LEFT SIDEBAR: Conversations --}}
-    <div class="w-1/3 bg-gray-800 border-r border-gray-700 flex flex-col">
-        <h2 class="text-xl font-semibold text-orange-400 p-4 border-b border-gray-700">Messages</h2>
+    <div class="w-full md:w-1/3 bg-gray-800 border-r border-gray-700 flex flex-col">
+        <h2 class="text-xl font-semibold text-orange-400 p-4 border-b border-gray-700">
+            Messages
+        </h2>
 
         <div class="flex-1 overflow-y-auto custom-scrollbar">
             @forelse($conversations as $conversation)
                 @php
-                    $otherUser = auth()->user()->role === 'provider' 
-                        ? $conversation->customer 
+                    $otherUser = auth()->user()->role === 'provider'
+                        ? $conversation->customer
                         : $conversation->provider;
                 @endphp
                 <a href="{{ route(auth()->user()->role . '.messages.chat', $conversation->id) }}" 
-                   class="block p-4 hover:bg-gray-700 transition {{ $conversation->id === $booking->id ? 'bg-gray-700' : '' }}">
+                   class="block p-4 hover:bg-gray-700 transition 
+                          {{ $conversation->id === $booking->id ? 'bg-gray-700' : '' }}">
                     <div class="flex justify-between items-center">
                         <div>
                             <p class="font-semibold text-white">
@@ -31,15 +36,17 @@
                     </div>
                 </a>
             @empty
-                <div class="p-4 text-gray-400 text-center">No conversations yet.</div>
+                <div class="p-4 text-gray-400 text-center">
+                    No conversations yet.
+                </div>
             @endforelse
         </div>
     </div>
 
-    {{-- RIGHT PANEL: Active Chat --}}
+    {{-- RIGHT CHAT PANEL --}}
     <div class="flex-1 flex flex-col bg-gray-900">
         {{-- Chat Header --}}
-        <div class="flex items-center justify-between p-4 bg-gray-800 border-b border-gray-700 sticky top-0 z-10">
+        <div class="flex items-center justify-between p-4 bg-gray-800 border-b border-gray-700 flex-shrink-0">
             <h2 class="text-lg font-semibold text-orange-400 truncate">
                 {{ auth()->id() === $booking->customer_id ? $booking->provider->name : $booking->customer->name }}
             </h2>
@@ -48,8 +55,8 @@
             </span>
         </div>
 
-        {{-- Chat Messages --}}
-        <div id="chat-box" class="flex-1 overflow-y-auto p-4 bg-gray-900 custom-scrollbar">
+        {{-- Messages Area --}}
+        <div id="chat-box" class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-gray-900">
             @forelse($messages as $msg)
                 <div class="mb-3 flex {{ $msg->sender_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
                     <div class="max-w-[70%] px-4 py-2 rounded-2xl 
@@ -67,24 +74,38 @@
             @endforelse
         </div>
 
-        {{-- Send Message Form --}}
+        {{-- Message Input --}}
         <form action="{{ route(auth()->user()->role . '.messages.send', $booking->id) }}" 
               method="POST" 
-              class="p-4 bg-gray-800 border-t border-gray-700 flex gap-2 sticky bottom-0">
+              class="p-4 bg-gray-800 border-t border-gray-700 flex gap-2 flex-shrink-0">
             @csrf
-            <input type="text" name="message" required 
-                class="flex-1 px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder="Type a message...">
+            <input type="text" 
+                   name="message" 
+                   required 
+                   placeholder="Type a message..."
+                   class="flex-1 px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-orange-500">
             <button type="submit" 
-                class="bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg font-semibold">
+                    class="bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg font-semibold">
                 Send
             </button>
         </form>
     </div>
 </div>
 
-{{-- Custom scrollbar & auto-scroll --}}
+{{-- Custom Scrollbar + Fit Fix --}}
 <style>
+html, body {
+    height: 100%;
+    margin: 0;
+    background-color: #111827;
+}
+
+main {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
     width: 8px;
 }
@@ -98,10 +119,9 @@
 </style>
 
 <script>
-    // ✅ Auto-scroll to latest message
+document.addEventListener('DOMContentLoaded', () => {
     const chatBox = document.getElementById('chat-box');
-    if (chatBox) {
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
+    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+});
 </script>
 @endsection
