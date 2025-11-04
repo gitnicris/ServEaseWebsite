@@ -29,7 +29,6 @@ Route::middleware(['auth', 'role:admin'])
         Route::post('/services/{service}/approve', [AdminController::class, 'approveService'])->name('services.approve');
         Route::post('/services/{service}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
 
-        // 🧑‍🔧 Providers Management
         Route::get('/providers', [AdminController::class, 'providers'])->name('providers');
         Route::get('/providers/{provider}', [AdminController::class, 'viewProvider'])->name('providers.view');
 
