@@ -54,7 +54,7 @@ Route::middleware(['auth', 'role:provider'])
         Route::put('/services/{service}', [ProviderController::class, 'update'])->name('services.update');
         Route::delete('/services/{service}', [ProviderController::class, 'destroy'])->name('services.destroy');
 
-        // 📅 Bookings Management
+     
         Route::get('/bookings', [ProviderController::class, 'bookings'])->name('bookings');
         Route::get('/bookings/pending', [ProviderController::class, 'pendingBookings'])
             ->name('bookings.pending');
