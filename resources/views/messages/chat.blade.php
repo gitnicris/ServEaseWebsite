@@ -3,12 +3,30 @@
 @section('title', 'Messages')
 
 @section('content')
-<div class="flex flex-col md:flex-row h-[calc(100vh-180px)] bg-gray-900 text-white rounded-lg overflow-hidden shadow-lg">
+<div x-data="{ showSidebar: window.innerWidth >= 768 }" 
+     @resize.window="showSidebar = window.innerWidth >= 768" 
+     class="flex h-[calc(100vh-180px)] bg-gray-900 text-white rounded-lg overflow-hidden shadow-lg relative">
 
-    {{-- LEFT SIDEBAR: Conversations --}}
-    <div class="w-full md:w-1/3 bg-gray-800 border-r border-gray-700 flex flex-col">
-        <h2 class="text-xl font-semibold text-orange-400 p-4 border-b border-gray-700">
+    {{-- MOBILE TOGGLE BUTTON --}}
+    <button @click="showSidebar = !showSidebar"
+            class="absolute top-3 left-3 z-20 md:hidden bg-gray-800 p-2 rounded-lg shadow-md hover:bg-gray-700 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" 
+             fill="none" viewBox="0 0 24 24" stroke-width="2" 
+             stroke="currentColor" class="w-6 h-6 text-orange-400">
+            <path stroke-linecap="round" stroke-linejoin="round" 
+                  d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
+
+    {{-- SIDEBAR: Conversations --}}
+    <div x-show="showSidebar" 
+         x-transition 
+         class="w-full md:w-1/3 bg-gray-800 border-r border-gray-700 flex flex-col absolute md:relative inset-0 md:inset-auto z-10">
+        <h2 class="text-xl font-semibold text-orange-400 p-4 border-b border-gray-700 flex justify-between items-center">
             Messages
+            <button @click="showSidebar = false" class="md:hidden text-gray-400 hover:text-white">
+                ✕
+            </button>
         </h2>
 
         <div class="flex-1 overflow-y-auto custom-scrollbar">
@@ -20,7 +38,8 @@
                 @endphp
                 <a href="{{ route(auth()->user()->role . '.messages.chat', $conversation->id) }}" 
                    class="block p-4 hover:bg-gray-700 transition 
-                          {{ $conversation->id === $booking->id ? 'bg-gray-700' : '' }}">
+                          {{ $conversation->id === $booking->id ? 'bg-gray-700' : '' }}"
+                   @click="if(window.innerWidth < 768) showSidebar = false">
                     <div class="flex justify-between items-center">
                         <div>
                             <p class="font-semibold text-white">
@@ -43,7 +62,7 @@
         </div>
     </div>
 
-    {{-- RIGHT CHAT PANEL --}}
+    {{-- CHAT AREA --}}
     <div class="flex-1 flex flex-col bg-gray-900">
         {{-- Chat Header --}}
         <div class="flex items-center justify-between p-4 bg-gray-800 border-b border-gray-700 flex-shrink-0">
@@ -55,7 +74,7 @@
             </span>
         </div>
 
-        {{-- Messages Area --}}
+        {{-- Messages --}}
         <div id="chat-box" class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-gray-900">
             @forelse($messages as $msg)
                 <div class="mb-3 flex {{ $msg->sender_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
@@ -74,7 +93,7 @@
             @endforelse
         </div>
 
-        {{-- Message Input --}}
+        {{-- Input Box --}}
         <form action="{{ route(auth()->user()->role . '.messages.send', $booking->id) }}" 
               method="POST" 
               class="p-4 bg-gray-800 border-t border-gray-700 flex gap-2 flex-shrink-0">
@@ -92,32 +111,22 @@
     </div>
 </div>
 
-{{-- Custom Scrollbar + Fit Fix --}}
+{{-- Custom Styles --}}
 <style>
-html, body {
-    height: 100%;
-    margin: 0;
-    background-color: #111827;
-}
-
 main {
     padding: 0 !important;
-    margin: 0 !important;
-    background: transparent !important;
 }
-
-.custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-}
+.custom-scrollbar::-webkit-scrollbar { width: 8px; }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #444;
-    border-radius: 4px;
+    background-color: #444; border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: #666;
 }
 </style>
 
+{{-- Auto-scroll and Alpine.js (for mobile sidebar) --}}
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const chatBox = document.getElementById('chat-box');
