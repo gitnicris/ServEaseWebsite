@@ -42,7 +42,7 @@ Route::middleware(['auth', 'role:provider'])
     ->prefix('provider')
     ->as('provider.')
     ->group(function () {
-        // 🏠 Dashboard & Profile
+      
         Route::get('/dashboard', [ProviderController::class, 'dashboard'])->name('dashboard');
         Route::get('/profile', [ProviderController::class, 'profile'])->name('profile');
         Route::put('/profile', [ProviderController::class, 'updateProfile'])->name('updateProfile');
