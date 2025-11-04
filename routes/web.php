@@ -32,7 +32,7 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/providers', [AdminController::class, 'providers'])->name('providers');
         Route::get('/providers/{provider}', [AdminController::class, 'viewProvider'])->name('providers.view');
 
-        // 👥 Customers Management
+     
         Route::get('/customers', [AdminController::class, 'customers'])->name('customers');
         Route::get('/customers/{customer}', [AdminController::class, 'viewCustomer'])->name('customers.view');
     });
