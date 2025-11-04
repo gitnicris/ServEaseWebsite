@@ -25,7 +25,6 @@ Route::middleware(['auth', 'role:admin'])
     ->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-        // 🧾 Pending Services Management
         Route::get('/services/pending', [AdminController::class, 'pendingServices'])->name('services.pending');
         Route::post('/services/{service}/approve', [AdminController::class, 'approveService'])->name('services.approve');
         Route::post('/services/{service}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
