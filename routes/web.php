@@ -31,11 +31,10 @@ Route::middleware(['auth', 'role:admin'])
         Route::post('/services/{service}/approve', [AdminController::class, 'approveService'])->name('services.approve');
         Route::post('/services/{service}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
 
-        // 🧑‍🔧 Providers Management
         Route::get('/providers', [AdminController::class, 'providers'])->name('providers');
         Route::get('/providers/{provider}', [AdminController::class, 'viewProvider'])->name('providers.view');
 
-        // 👥 Customers Management
+     
         Route::get('/customers', [AdminController::class, 'customers'])->name('customers');
         Route::get('/customers/{customer}', [AdminController::class, 'viewCustomer'])->name('customers.view');
     });
@@ -45,19 +44,19 @@ Route::middleware(['auth', 'role:provider'])
     ->prefix('provider')
     ->as('provider.')
     ->group(function () {
-        // 🏠 Dashboard & Profile
+      
         Route::get('/dashboard', [ProviderController::class, 'dashboard'])->name('dashboard');
         Route::get('/profile', [ProviderController::class, 'profile'])->name('profile');
         Route::put('/profile', [ProviderController::class, 'updateProfile'])->name('updateProfile');
 
-        // 🛠️ Services Management
+        
         Route::get('/services', [ProviderController::class, 'services'])->name('services');
         Route::post('/services/store', [ProviderController::class, 'store'])->name('store');
         Route::get('/services/{service}/edit', [ProviderController::class, 'edit'])->name('services.edit');
         Route::put('/services/{service}', [ProviderController::class, 'update'])->name('services.update');
         Route::delete('/services/{service}', [ProviderController::class, 'destroy'])->name('services.destroy');
 
-        // 📅 Bookings Management
+     
         Route::get('/bookings', [ProviderController::class, 'bookings'])->name('bookings');
         Route::get('/bookings/pending', [ProviderController::class, 'pendingBookings'])
             ->name('bookings.pending');
