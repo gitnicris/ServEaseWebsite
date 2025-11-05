@@ -9,7 +9,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\GoogleController;
-
+use Illuminate\Support\Facades\Password;
 
 
 Route::controller(PageController::class)->group(function () {
@@ -107,7 +107,10 @@ Route::middleware(['auth', 'role:customer'])
 
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
-
+Route::get('forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])
+    ->name('password.request');
+Route::post('forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])
+    ->name('password.email');
 
 
 
