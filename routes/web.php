@@ -103,14 +103,26 @@ Route::middleware(['auth', 'role:customer'])
         });
     });
 
+        Route::get('forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])
+                ->name('password.request');
+        Route::post('forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])
+                ->name('password.email');
+
 
 
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
-Route::get('forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])
-    ->name('password.request');
-Route::post('forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])
-    ->name('password.email');
+Route::get('/choose-role', function () {
+    return view('auth.choose-role');
+})->name('choose.role')->middleware('auth');
+
+Route::post('/choose-role', [GoogleController::class, 'saveRole'])->name('choose.role.save');
+Route::get('/set-role/{role}', [GoogleController::class, 'setRole'])->name('setRole');
+
+
+
+
+
 
 
 

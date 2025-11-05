@@ -162,6 +162,30 @@
     </div>
 </div>
 
+<!-- 🌟 Role Selection Modal -->
+<div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-white dark:bg-gray-800">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-violet-700 dark:text-violet-400" id="roleModalLabel">Select Your Role</h5>
+      </div>
+      <div class="modal-body text-center">
+        <p class="text-gray-600 dark:text-gray-300 mb-3">Please choose your role to continue:</p>
+        <a href="{{ route('setRole', ['role' => 'customer']) }}" class="btn btn-success m-2">Customer</a>
+        <a href="{{ route('setRole', ['role' => 'provider']) }}" class="btn btn-primary m-2">Provider</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    @if(Auth::user() && Auth::user()->role == null)
+        new bootstrap.Modal(document.getElementById('roleModal')).show();
+    @endif
+});
+</script>
+
 <style>
     html, body {
         margin: 0;
@@ -175,13 +199,11 @@
         min-height: 100vh;
     }
 
-    /* ✅ Force top alignment to hide violet background */
     main {
         padding-top: 0 !important;
         margin-top: 0 !important;
     }
 
-    /* 📱 Responsive tweaks */
     @media (max-width: 768px) {
         .grid-cols-4 {
             grid-template-columns: repeat(2, minmax(0, 1fr));
