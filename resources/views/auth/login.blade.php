@@ -97,7 +97,7 @@
         }
 
         a:hover {
-            color: white;
+            color:  #ec6c10ff;
         }
 
         /* Google Button */
