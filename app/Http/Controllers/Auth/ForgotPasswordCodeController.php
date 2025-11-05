@@ -4,55 +4,51 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 
 class ForgotPasswordCodeController extends Controller
 {
-    // Step 1: Show email form
+    // Step 1: Show email input form
     public function showEmailForm()
     {
-        return view('auth.forgot-password-code');
+        return view('auth.forgot-password');
     }
 
-    // Step 2: Send verification code via email
+    // Step 2: Send verification code
     public function sendCode(Request $request)
     {
-        $request->validate(['email' => 'required|email']);
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
-            return back()->withErrors(['email' => 'No account found with this email.']);
+        // Rate limit: prevent multiple codes within 2 minutes
+        if ($user->code_sent_at && Carbon::parse($user->code_sent_at)->diffInMinutes(now()) < 2) {
+            return back()->with('error', 'You can request another code after 2 minutes.');
         }
 
-        $code = rand(100000, 999999);
+        $code = rand(100000, 999999); // 6-digit code
+        $user->update([
+            'verification_code' => $code,
+            'code_expires_at' => now()->addMinutes(10),
+            'code_sent_at' => now(),
+        ]);
 
-        // Save code and expiration
-        DB::table('password_reset_codes')->updateOrInsert(
-            ['email' => $request->email],
-            [
-                'code' => $code,
-                'created_at' => Carbon::now(),
-                'expires_at' => Carbon::now()->addMinutes(10),
-            ]
-        );
-
-        // Send email with code
-        Mail::raw("Your ServEase verification code is: {$code}", function ($message) use ($request) {
-            $message->to($request->email)
-                    ->subject('ServEase Password Reset Code');
+        // Send email
+        Mail::raw("Your ServEase verification code is: {$code}. It will expire in 10 minutes.", function ($message) use ($user) {
+            $message->to($user->email)
+                ->subject('ServEase Password Reset Code');
         });
 
-        return redirect()->route('password.code.verify.form')
-                         ->with('success', 'A verification code has been sent to your email.');
+        session(['password_reset_email' => $user->email]);
+        return redirect()->route('password.code.verify.form')->with('status', 'Verification code sent! Check your email.');
     }
 
-    // Step 3: Show code verification form
+    // Step 3: Show verify code form
     public function showVerifyForm()
     {
         return view('auth.verify-code');
@@ -62,57 +58,57 @@ class ForgotPasswordCodeController extends Controller
     public function verifyCode(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
             'code' => 'required|digits:6',
         ]);
 
-        $record = DB::table('password_reset_codes')
-                    ->where('email', $request->email)
-                    ->where('code', $request->code)
-                    ->first();
+        $email = session('password_reset_email');
+        $user = User::where('email', $email)->first();
 
-        if (!$record) {
-            return back()->withErrors(['code' => 'Invalid verification code.']);
+        if (!$user) {
+            return redirect()->route('password.code.request')->with('error', 'Session expired. Please try again.');
         }
 
-        if (Carbon::parse($record->expires_at)->isPast()) {
-            return back()->withErrors(['code' => 'Verification code has expired.']);
+        if ($user->verification_code != $request->code) {
+            return back()->with('error', 'Invalid verification code.');
         }
 
-        session(['password_reset_email' => $request->email]);
+        if (Carbon::parse($user->code_expires_at)->isPast()) {
+            return back()->with('error', 'Code has expired. Please request a new one.');
+        }
 
-        return redirect()->route('password.reset.form');
+        session(['verified_email' => $email]);
+        return redirect()->route('password.reset.form')->with('status', 'Code verified! You can now reset your password.');
     }
 
     // Step 5: Show reset password form
     public function showResetForm()
     {
-        return view('auth.reset-password-code');
+        return view('auth.reset-password');
     }
 
     // Step 6: Reset password
     public function resetPassword(Request $request)
     {
         $request->validate([
-            'password' => 'required|confirmed|min:8',
+            'password' => 'required|min:8|confirmed',
         ]);
 
-        $email = session('password_reset_email');
+        $email = session('verified_email');
+        $user = User::where('email', $email)->first();
 
-        if (!$email) {
-            return redirect()->route('password.code.request')
-                             ->withErrors(['email' => 'Please start the reset process again.']);
+        if (!$user) {
+            return redirect()->route('password.code.request')->with('error', 'Session expired. Please try again.');
         }
 
-        User::where('email', $email)->update([
+        $user->update([
             'password' => Hash::make($request->password),
+            'verification_code' => null,
+            'code_expires_at' => null,
+            'code_sent_at' => null,
         ]);
 
-        // Remove used code
-        DB::table('password_reset_codes')->where('email', $email)->delete();
+        session()->forget(['verified_email', 'password_reset_email']);
 
-        session()->forget('password_reset_email');
-
-        return redirect()->route('login')->with('success', 'Password has been reset successfully.');
+        return redirect()->route('login')->with('status', 'Password has been reset successfully.');
     }
 }
