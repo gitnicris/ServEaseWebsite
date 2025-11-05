@@ -206,14 +206,13 @@
                 </div>
             </form>
 
-            <!-- Divider -->
+        
             <div class="my-6 flex items-center justify-center text-gray-400 text-sm">
                 <span class="w-1/4 border-b border-gray-600"></span>
                 <span class="mx-2">or</span>
                 <span class="w-1/4 border-b border-gray-600"></span>
             </div>
 
-            <!-- Google Login -->
             <div class="text-center">
                 <a href="{{ route('auth.google') }}" class="google-btn">
                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google logo">
