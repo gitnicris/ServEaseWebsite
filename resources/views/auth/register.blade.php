@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | ServEase</title>
+    <title>Login | ServEase</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -23,7 +23,7 @@
             flex-direction: row;
         }
 
-        /* Left panel */
+        /* Left Panel */
         .left-panel {
             width: 50%;
             display: flex;
@@ -56,7 +56,7 @@
             line-height: 1.6;
         }
 
-        /* Right panel */
+        /* Right Panel */
         .right-panel {
             width: 50%;
             display: flex;
@@ -87,7 +87,7 @@
             }
         }
 
-        input, select {
+        input {
             color: black;
         }
 
@@ -100,13 +100,31 @@
             color: white;
         }
 
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .left-panel h1 {
-                font-size: 2.5rem;
-            }
+        /* Google Button */
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            color: #444;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.7rem;
+            width: 100%;
+            transition: background 0.3s;
         }
 
+        .google-btn:hover {
+            background: #f3f3f3;
+        }
+
+        .google-btn img {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -136,41 +154,28 @@
 <body>
     <!-- Left Panel -->
     <div class="left-panel animate__animated animate__fadeInLeft">
-        <!-- Replace with your logo if available -->
         <img src="{{ asset('images/servease-logo.png') }}" alt="ServEase Logo" onerror="this.style.display='none'">
-        <h1>ServEase</h1>
-        <p>Join ServEase today and discover a smarter way to connect with trusted service providers and customers in one place.</p>
+        <h1>Welcome Back</h1>
+        <p>Log in to ServEase and manage your services, bookings, and connections effortlessly.</p>
     </div>
 
     <!-- Right Panel -->
     <div class="right-panel animate__animated animate__fadeInRight">
         <div class="card">
-            <h2 class="text-2xl font-bold text-center text-orange-400 mb-6">Create Your Account</h2>
+            <h2 class="text-2xl font-bold text-center text-orange-400 mb-6">Login to Your Account</h2>
 
-            <form method="POST" action="{{ route('register') }}" class="space-y-5">
+            <form method="POST" action="{{ route('login') }}" class="space-y-5">
                 @csrf
 
-                <!-- Full Name -->
-                <div>
-                    <label for="name" class="block text-white font-semibold mb-1">Full Name</label>
-                    <input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus
-                        class="w-full p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 text-gray-800">
-                    @error('name')
-                        <p class="text-sm text-red-400 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Email -->
                 <div>
                     <label for="email" class="block text-white font-semibold mb-1">Email</label>
-                    <input id="email" type="email" name="email" value="{{ old('email') }}" required
+                    <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
                         class="w-full p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 text-gray-800">
                     @error('email')
                         <p class="text-sm text-red-400 mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <!-- Password -->
                 <div>
                     <label for="password" class="block text-white font-semibold mb-1">Password</label>
                     <input id="password" type="password" name="password" required
@@ -180,39 +185,45 @@
                     @enderror
                 </div>
 
-                <!-- Confirm Password -->
-                <div>
-                    <label for="password_confirmation" class="block text-white font-semibold mb-1">Confirm Password</label>
-                    <input id="password_confirmation" type="password" name="password_confirmation" required
-                        class="w-full p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 text-gray-800">
+                <div class="flex items-center justify-between text-sm text-gray-300">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="remember" class="mr-2 accent-orange-500">
+                        Remember me
+                    </label>
+                    @if (Route::has('password.request'))
+                        <a href="{{ route('password.request') }}" class="text-orange-400 hover:underline">
+                            Forgot password?
+                        </a>
+                    @endif
                 </div>
 
-                <!-- Role -->
-                <div>
-                    <label for="role" class="block text-white font-semibold mb-1">Register As</label>
-                    <select id="role" name="role" required
-                        class="w-full p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 text-gray-800">
-                        <option value="">Select your role</option>
-                        <option value="customer" {{ old('role') == 'customer' ? 'selected' : '' }}>Customer</option>
-                        <option value="provider" {{ old('role') == 'provider' ? 'selected' : '' }}>Service Provider</option>
-                    </select>
-                    @error('role')
-                        <p class="text-sm text-red-400 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Submit -->
+                <!-- Login Button -->
                 <div class="text-center pt-3">
                     <button type="submit"
-                        class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-2.5 rounded-md font-semibold transition">
-                        Register
+                        class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-2.5 rounded-md font-semibold transition w-full">
+                        Login
                     </button>
                 </div>
             </form>
 
+            <!-- Divider -->
+            <div class="my-6 flex items-center justify-center text-gray-400 text-sm">
+                <span class="w-1/4 border-b border-gray-600"></span>
+                <span class="mx-2">or</span>
+                <span class="w-1/4 border-b border-gray-600"></span>
+            </div>
+
+            <!-- Google Login -->
+            <div class="text-center">
+                <a href="{{ route('auth.google') }}" class="google-btn">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google logo">
+                    Sign in with Google
+                </a>
+            </div>
+
             <div class="mt-6 text-center text-gray-300 text-sm">
-                Already have an account?
-                <a href="{{ route('login') }}" class="text-orange-400 hover:underline font-semibold">Log in here</a>
+                Don’t have an account?
+                <a href="{{ route('register') }}" class="text-orange-400 hover:underline font-semibold">Create one</a>
             </div>
         </div>
     </div>
