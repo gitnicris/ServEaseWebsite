@@ -8,6 +8,8 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\GoogleController;
+
 
 
 Route::controller(PageController::class)->group(function () {
@@ -101,6 +103,13 @@ Route::middleware(['auth', 'role:customer'])
             Route::post('/{bookingId}', [MessageController::class, 'send'])->name('messages.send');
         });
     });
+
+
+
+Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+
+
 
 
 require __DIR__ . '/auth.php';
