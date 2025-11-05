@@ -103,10 +103,16 @@ Route::middleware(['auth', 'role:customer'])
         });
     });
 
-        Route::get('forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])
-                ->name('password.request');
-        Route::post('forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])
-                ->name('password.email');
+        use App\Http\Controllers\Auth\ForgotPasswordCodeController;
+
+Route::get('/forgot-password-code', [ForgotPasswordCodeController::class, 'showEmailForm'])->name('password.code.request');
+Route::post('/forgot-password-code', [ForgotPasswordCodeController::class, 'sendCode'])->name('password.code.send');
+
+Route::get('/verify-code', [ForgotPasswordCodeController::class, 'showVerifyForm'])->name('password.code.verify.form');
+Route::post('/verify-code', [ForgotPasswordCodeController::class, 'verifyCode'])->name('password.code.verify');
+
+Route::get('/reset-password-code', [ForgotPasswordCodeController::class, 'showResetForm'])->name('password.reset.form');
+Route::post('/reset-password-code', [ForgotPasswordCodeController::class, 'resetPassword'])->name('password.reset.code');
 
 
 
