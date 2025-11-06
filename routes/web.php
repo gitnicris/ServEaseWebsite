@@ -8,6 +8,8 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\GoogleController;
+use Illuminate\Support\Facades\Password;
 
 
 Route::controller(PageController::class)->group(function () {
@@ -101,6 +103,34 @@ Route::middleware(['auth', 'role:customer'])
             Route::post('/{bookingId}', [MessageController::class, 'send'])->name('messages.send');
         });
     });
+
+        use App\Http\Controllers\Auth\ForgotPasswordCodeController;
+
+Route::get('/forgot-password-code', [ForgotPasswordCodeController::class, 'showEmailForm'])->name('password.code.request');
+Route::post('/forgot-password-code', [ForgotPasswordCodeController::class, 'sendCode'])->name('password.code.send');
+
+Route::get('/verify-code', [ForgotPasswordCodeController::class, 'showVerifyForm'])->name('password.code.verify.form');
+Route::post('/verify-code', [ForgotPasswordCodeController::class, 'verifyCode'])->name('password.code.verify');
+
+Route::get('/reset-password-code', [ForgotPasswordCodeController::class, 'showResetForm'])->name('password.reset.form');
+Route::post('/reset-password-code', [ForgotPasswordCodeController::class, 'resetPassword'])->name('password.reset.code');
+
+
+
+Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+Route::get('/choose-role', function () {
+    return view('auth.choose-role');
+})->name('choose.role')->middleware('auth');
+
+Route::post('/choose-role', [GoogleController::class, 'saveRole'])->name('choose.role.save');
+Route::get('/set-role/{role}', [GoogleController::class, 'setRole'])->name('setRole');
+
+
+
+
+
+
 
 
 require __DIR__ . '/auth.php';
