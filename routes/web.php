@@ -58,7 +58,8 @@ Route::middleware(['auth', 'role:provider'])
         Route::get('/bookings', [ProviderController::class, 'bookings'])->name('bookings');
         Route::get('/bookings/pending', [ProviderController::class, 'pendingBookings'])
             ->name('bookings.pending');
-        // Alias for backward compatibility (Blade using provider.pending)
+     
+
         Route::get('/bookings/pending', [ProviderController::class, 'pendingBookings'])
             ->name('pending');
 
@@ -67,7 +68,7 @@ Route::middleware(['auth', 'role:provider'])
         Route::post('/bookings/{booking}/reject', [ProviderController::class, 'rejectBooking'])
             ->name('bookings.reject');
 
-        // 💬 Messaging (Provider side)
+     
         Route::prefix('messages')->group(function () {
             Route::get('/', [MessageController::class, 'indexList'])->name('messages.index');
             Route::get('/{bookingId}', [MessageController::class, 'index'])->name('messages.chat');
