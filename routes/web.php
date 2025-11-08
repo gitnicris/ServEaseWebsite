@@ -10,6 +10,8 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\GoogleController;
 use Illuminate\Support\Facades\Password;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\Provider\ProviderSettingsController;
 
 
 Route::controller(PageController::class)->group(function () {
@@ -68,10 +70,7 @@ Route::middleware(['auth', 'role:provider'])
             Route::post('/{bookingId}', [MessageController::class, 'send'])->name('messages.send');
         });
 
-        Route::get('/account-settings', [ProviderController::class, 'accountSettings'])->name('account-settings');
     });
-
-
 
 
 Route::middleware(['auth', 'role:customer'])
@@ -122,10 +121,19 @@ Route::get('/set-role/{role}', [GoogleController::class, 'setRole'])->name('setR
 
 
 
-
-
 Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
+
+Route::middleware(['auth', 'role:provider'])
+    ->prefix('provider')
+    ->as('provider.')
+    ->group(function () {
+
+        Route::get('/settings', [ProviderSettingsController::class, 'index'])->name('settings');
+        Route::put('/settings/update-account', [ProviderSettingsController::class, 'updateAccount'])->name('settings.updateAccount');
+        Route::put('/settings/update-password', [ProviderSettingsController::class, 'updatePassword'])->name('settings.updatePassword');
+        Route::delete('/settings/delete-account', [ProviderSettingsController::class, 'destroyAccount'])->name('settings.destroyAccount');
+    });
 
 
 

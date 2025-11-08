@@ -164,6 +164,8 @@
                 <a href="{{ route('provider.messages.index') }}" class="flex items-center space-x-2">
                     <i class="bi bi-chat-dots"></i> <span>Chats</span>
                 </a>
+                <a href="{{ route('provider.settings') }}">Account Settings</a>
+
             @elseif ($role === 'admin')
                 <a href="{{ route('admin.dashboard') }}">Dashboard</a>
             @else
