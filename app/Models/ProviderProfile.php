@@ -13,9 +13,12 @@ class ProviderProfile extends Model
         'user_id',
         'name',
         'bio',
-        'phone',
         'address',
+        'gmail',
+        'phone',
         'photo',
+        'about',
+        'review',
     ];
 
     // 🔗 Relationship: Profile belongs to a User
@@ -23,4 +26,9 @@ class ProviderProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function reviews()
+{
+    return $this->hasMany(Review::class);
+}
+
 }

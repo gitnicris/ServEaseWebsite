@@ -1,93 +1,72 @@
 @extends('layouts.app')
 
+@section('title', 'Provider Profile')
+
 @section('content')
-<div class="max-w-4xl mx-auto mt-10 bg-white/90 dark:bg-gray-800/80 rounded-2xl shadow-xl p-8 backdrop-blur-md animate__animated animate__fadeIn">
-
-    {{-- ✅ Success Message --}}
-    @if (session('success'))
-        <div class="mb-6 px-4 py-3 rounded-lg bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-300 border border-green-300/40">
-            <i class="bi bi-check-circle-fill me-2"></i>
-            {{ session('success') }}
-        </div>
-    @endif
-
-    {{-- 👤 Profile Header --}}
-    <div class="flex flex-col items-center mb-10 text-center relative">
-        {{-- Profile Photo (clickable) --}}
-        @if (!empty($profile->photo) && Storage::disk('public')->exists($profile->photo))
-            <a href="{{ asset('storage/' . $profile->photo) }}" target="_blank" class="group relative">
-                <img src="{{ asset('storage/' . $profile->photo) }}" 
-                     alt="Profile Photo" 
-                     class="w-28 h-28 rounded-full object-cover border-4 border-orange-500 shadow-lg transition-transform group-hover:scale-105">
-                <div class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
-                    <i class="bi bi-eye-fill text-white text-xl"></i>
+<div class="max-w-6xl mx-auto mt-10 space-y-8">
+    <!-- 🌈 Profile Header -->
+    <div class="bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-500 text-white rounded-3xl shadow-2xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between">
+        <div class="flex items-center space-x-6">
+            <img src="{{ $profile->photo ? asset('storage/'.$profile->photo) : 'https://ui-avatars.com/api/?name='.urlencode($profile->name) }}" 
+                 class="w-28 h-28 rounded-full border-4 border-white shadow-lg object-cover" 
+                 alt="Profile Photo">
+            <div>
+                <h1 class="text-3xl font-bold">{{ $profile->name }}</h1>
+                <p class="text-sm text-gray-200 mt-1">{{ $profile->bio ?: 'No bio provided yet.' }}</p>
+                <div class="flex items-center mt-2 text-yellow-300">
+                    @for ($i = 0; $i < 5; $i++)
+                        <i class="bi {{ $i < $profile->review ? 'bi-star-fill' : 'bi-star' }}"></i>
+                    @endfor
+                    <span class="ml-2 text-sm text-gray-200">({{ $profile->review ?? 0 }}/5)</span>
                 </div>
-            </a>
-        @else
-            <div class="w-28 h-28 rounded-full bg-orange-500 flex items-center justify-center text-white text-4xl font-bold shadow-lg">
-                {{ strtoupper(substr($user->name, 0, 1)) }}
             </div>
-        @endif
+        </div>
 
-        <h2 class="mt-4 text-3xl font-semibold text-gray-800 dark:text-gray-100">{{ $user->name }}</h2>
-        <p class="text-gray-500 dark:text-gray-400">Service Provider</p>
+        <!-- ✏️ Buttons -->
+        <div class="flex flex-col md:flex-row md:space-x-4 mt-5 md:mt-0 space-y-3 md:space-y-0">
+            <a href="{{ route('provider.edit-profile') }}" 
+               class="bg-white/20 hover:bg-white/30 text-white font-semibold px-6 py-2.5 rounded-lg backdrop-blur-sm transition">
+                <i class="bi bi-pencil-square me-1"></i> Edit Profile
+            </a>
+            <a href="{{ route('provider.messages.index') }}" 
+               class="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-2.5 rounded-lg transition">
+                <i class="bi bi-chat-dots me-1"></i> Chat
+            </a>
+        </div>
     </div>
 
-    {{-- 📝 Profile Update Form --}}
-    <form action="{{ route('provider.updateProfile') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-        @csrf
-        @method('PUT')
-
-        {{-- Full Name --}}
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
-            <input type="text" 
-                   name="name" 
-                   value="{{ old('name', $user->name) }}"
-                   class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition duration-150">
+    <!-- 📄 Info Sections -->
+    <div class="grid md:grid-cols-2 gap-8">
+        <!-- 🏠 Personal Info -->
+        <div class="bg-white/95 rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2 flex items-center">
+                <i class="bi bi-person-lines-fill text-blue-600 me-2"></i> Personal Details
+            </h2>
+            <div class="space-y-3 text-gray-700">
+                <p><strong>Name:</strong> {{ $profile->name }}</p>
+                <p><strong>Address:</strong> {{ $profile->address ?: 'Not provided' }}</p>
+                <p><strong>Phone:</strong> {{ $profile->phone ?: 'Not provided' }}</p>
+                <p><strong>Email:</strong> {{ $profile->gmail ?: 'Not provided' }}</p>
+            </div>
         </div>
 
-        {{-- Bio --}}
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Bio</label>
-            <textarea name="bio" 
-                      rows="3"
-                      class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition duration-150">{{ old('bio', $profile->bio) }}</textarea>
+        <!-- 💬 About Section -->
+        <div class="bg-white/95 rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2 flex items-center">
+                <i class="bi bi-info-circle text-blue-600 me-2"></i> About Me
+            </h2>
+            <p class="text-gray-700 leading-relaxed">
+                {{ $profile->about ?: 'This provider has not added an about section yet.' }}
+            </p>
         </div>
+    </div>
 
-        {{-- Phone --}}
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Phone</label>
-            <input type="text" 
-                   name="phone" 
-                   value="{{ old('phone', $profile->phone) }}"
-                   class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition duration-150">
-        </div>
-
-        {{-- Address --}}
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Address</label>
-            <input type="text" 
-                   name="address" 
-                   value="{{ old('address', $profile->address) }}"
-                   class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition duration-150">
-        </div>
-
-        {{-- Profile Photo --}}
-        <div>
-            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Change Profile Photo</label>
-            <input type="file" 
-                   name="photo" 
-                   class="block w-full text-sm text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 rounded-lg p-2 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600 transition duration-150">
-        </div>
-
-        {{-- Submit Button --}}
-        <div class="text-center pt-4">
-            <button type="submit" 
-                    class="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg shadow-md transition duration-150">
-                <i class="bi bi-save2 me-1"></i> Update Profile
-            </button>
-        </div>
-    </form>
+    <!-- 📋 Review Summary -->
+    <div class="bg-white/95 rounded-2xl shadow-lg p-6 border border-gray-100 mt-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2 flex items-center">
+            <i class="bi bi-star-half text-yellow-500 me-2"></i> Customer Reviews
+        </h2>
+        <p class="text-gray-700">This provider currently has a {{ $profile->review ?? 0 }}/5 rating based on customer feedback.</p>
+    </div>
 </div>
 @endsection

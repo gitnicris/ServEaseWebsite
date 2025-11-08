@@ -44,38 +44,33 @@ Route::middleware(['auth', 'role:provider'])
     ->prefix('provider')
     ->as('provider.')
     ->group(function () {
-      
         Route::get('/dashboard', [ProviderController::class, 'dashboard'])->name('dashboard');
         Route::get('/profile', [ProviderController::class, 'profile'])->name('profile');
         Route::put('/profile', [ProviderController::class, 'updateProfile'])->name('updateProfile');
+        Route::get('/edit-profile', [ProviderController::class, 'editProfile'])->name('edit-profile'); // ✅ fixed
 
-        
         Route::get('/services', [ProviderController::class, 'services'])->name('services');
         Route::post('/services/store', [ProviderController::class, 'store'])->name('store');
         Route::get('/services/{service}/edit', [ProviderController::class, 'edit'])->name('services.edit');
         Route::put('/services/{service}', [ProviderController::class, 'update'])->name('services.update');
         Route::delete('/services/{service}', [ProviderController::class, 'destroy'])->name('services.destroy');
 
-     
         Route::get('/bookings', [ProviderController::class, 'bookings'])->name('bookings');
-        Route::get('/bookings/pending', [ProviderController::class, 'pendingBookings'])
-            ->name('bookings.pending');
-        // Alias for backward compatibility (Blade using provider.pending)
-        Route::get('/bookings/pending', [ProviderController::class, 'pendingBookings'])
-            ->name('pending');
+        Route::get('/bookings/pending', [ProviderController::class, 'pendingBookings'])->name('bookings.pending');
+        Route::get('/bookings/pending', [ProviderController::class, 'pendingBookings'])->name('pending');
 
-        Route::post('/bookings/{booking}/approve', [ProviderController::class, 'approveBooking'])
-            ->name('bookings.approve');
-        Route::post('/bookings/{booking}/reject', [ProviderController::class, 'rejectBooking'])
-            ->name('bookings.reject');
+        Route::post('/bookings/{booking}/approve', [ProviderController::class, 'approveBooking'])->name('bookings.approve');
+        Route::post('/bookings/{booking}/reject', [ProviderController::class, 'rejectBooking'])->name('bookings.reject');
 
-        // 💬 Messaging (Provider side)
         Route::prefix('messages')->group(function () {
             Route::get('/', [MessageController::class, 'indexList'])->name('messages.index');
             Route::get('/{bookingId}', [MessageController::class, 'index'])->name('messages.chat');
             Route::post('/{bookingId}', [MessageController::class, 'send'])->name('messages.send');
         });
+
+        Route::get('/account-settings', [ProviderController::class, 'accountSettings'])->name('account-settings');
     });
+
 
 
 
@@ -128,6 +123,8 @@ Route::get('/set-role/{role}', [GoogleController::class, 'setRole'])->name('setR
 
 
 
+
+Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
 
 

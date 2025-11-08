@@ -173,6 +173,7 @@
                 <a href="{{ route('customer.messages.index') }}" class="flex items-center space-x-2">
                     <i class="bi bi-chat-dots"></i> <span>Chats</span>
                 </a>
+              
             @endif
 
             <form method="POST" action="{{ route('logout') }}">

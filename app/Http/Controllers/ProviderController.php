@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Service;
 use App\Models\ProviderProfile;
 use App\Models\Booking;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -46,21 +47,49 @@ class ProviderController extends Controller
     public function profile()
     {
         $user = Auth::user();
+
+        // Create default provider profile if it doesn't exist
         $profile = ProviderProfile::firstOrCreate(
             ['user_id' => $user->id],
             [
                 'name' => $user->name,
                 'bio' => '',
-                'phone' => '',
                 'address' => '',
+                'gmail' => $user->email ?? '',
+                'phone' => '',
                 'photo' => null,
+                'about' => '',
             ]
         );
 
-        return view('provider.profile', compact('user', 'profile'));
+        // Compute reviews
+        $reviews = Review::where('provider_id', $profile->id)->latest()->get();
+        $averageRating = $reviews->avg('rating');
+
+        return view('provider.profile', compact('user', 'profile', 'reviews', 'averageRating'));
     }
 
-    // ✏️ Update Profile
+    // ✏️ Edit Provider Profile
+    public function editProfile()
+    {
+        $user = Auth::user();
+        $profile = ProviderProfile::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'name' => $user->name,
+                'bio' => '',
+                'address' => '',
+                'gmail' => $user->email ?? '',
+                'phone' => '',
+                'photo' => null,
+                'about' => '',
+            ]
+        );
+
+        return view('provider.edit-profile', compact('user', 'profile'));
+    }
+
+    // 💾 Update Provider Profile
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
@@ -68,13 +97,16 @@ class ProviderController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'bio' => 'nullable|string|max:1000',
-            'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
+            'gmail' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'about' => 'nullable|string|max:2000',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         $profile = ProviderProfile::firstOrCreate(['user_id' => $user->id]);
 
+        // Handle profile photo upload
         if ($request->hasFile('photo')) {
             if ($profile->photo && Storage::disk('public')->exists($profile->photo)) {
                 Storage::disk('public')->delete($profile->photo);
@@ -84,7 +116,7 @@ class ProviderController extends Controller
             $profile->photo = $path;
         }
 
-        $profile->fill($request->only('bio', 'phone', 'address'));
+        $profile->fill($request->only('bio', 'address', 'gmail', 'phone', 'about'));
         $profile->save();
 
         $user->update(['name' => $request->name]);
@@ -191,7 +223,7 @@ class ProviderController extends Controller
         return view('provider.pending', compact('bookings', 'approvedCount', 'cancelledCount'));
     }
 
-    // ✅ All Bookings (combined view)
+    // ✅ All Bookings
     public function bookings()
     {
         $bookings = Booking::whereHas('service', fn($q) => $q->where('user_id', Auth::id()))
@@ -202,30 +234,25 @@ class ProviderController extends Controller
         return view('provider.bookings', compact('bookings'));
     }
 
-    // ✅ Approve Booking (redirect back to pending)
+    // ✅ Approve Booking
     public function approveBooking(Booking $booking)
     {
-    try {
-        $booking->update(['status' => 'accepted']);
-        return redirect()->route('provider.pending')
-            ->with('success', '✅ Booking approved successfully!');
-    } catch (\Exception $e) {
-        return redirect()->route('provider.pending')
-            ->with('error', 'Failed to approve booking.');
-    }
+        try {
+            $booking->update(['status' => 'accepted']);
+            return redirect()->route('provider.pending')->with('success', '✅ Booking approved successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('provider.pending')->with('error', 'Failed to approve booking.');
+        }
     }
 
-// ❌ Reject Booking (redirect back to pending)
+    // ❌ Reject Booking
     public function rejectBooking(Booking $booking)
     {
-    try {
-        $booking->update(['status' => 'cancelled']);
-        return redirect()->route('provider.pending')
-            ->with('error', '❌ Booking rejected.');
-    } catch (\Exception $e) {
-        return redirect()->route('provider.pending')
-            ->with('error', 'Failed to reject booking.');
+        try {
+            $booking->update(['status' => 'cancelled']);
+            return redirect()->route('provider.pending')->with('error', '❌ Booking rejected.');
+        } catch (\Exception $e) {
+            return redirect()->route('provider.pending')->with('error', 'Failed to reject booking.');
+        }
     }
-    }
-
 }

@@ -81,7 +81,6 @@
 </head>
 <body>
     <div class="left-panel animate__animated animate__fadeInLeft">
-        <img src="{{ asset('images/servease-logo.png') }}" alt="ServEase Logo">
         <h1>Forgot Password</h1>
         <p>Enter your email and we’ll send you a verification code to reset your password.</p>
     </div>

@@ -39,13 +39,13 @@ class User extends Authenticatable
         ];
     }
 
-    // 🧩 A user (provider) can have many services
+    //  A user (provider) can have many services
     public function services()
     {
         return $this->hasMany(Service::class);
     }
 
-    // 👤 A provider has one profile
+    // A provider has one profile
     public function providerProfile()
     {
         return $this->hasOne(ProviderProfile::class, 'user_id');
@@ -56,25 +56,25 @@ class User extends Authenticatable
 }
 
 
-    // 🧠 Helper to easily get user’s photo (fallback if missing)
+    // Helper to easily get user’s photo (fallback if missing)
     public function getProfilePhotoUrlAttribute()
 {
-    // 🧑‍🔧 Check Provider Profile first
+    // Check Provider Profile first
     if ($this->providerProfile && $this->providerProfile->photo) {
         return asset('storage/' . $this->providerProfile->photo);
     }
 
-    // 🧑‍💼 Then check Customer Profile
+    // Then check Customer Profile
     if ($this->customerProfile && $this->customerProfile->photo) {
         return asset('storage/' . $this->customerProfile->photo);
     }
 
-    // 📸 If user has a direct photo column
+    // If user has a direct photo column
     if ($this->photo) {
         return asset('storage/' . $this->photo);
     }
 
-    // 🅰️ Fallback avatar
+    // Fallback avatar
     return 'https://ui-avatars.com/api/?name=' . urlencode($this->name);
 }
 
@@ -86,6 +86,10 @@ class User extends Authenticatable
 public function providerBookings()
 {
     return $this->hasMany(Booking::class, 'provider_id');
+}
+public function reviews()
+{
+    return $this->hasMany(Review::class);
 }
 
 
