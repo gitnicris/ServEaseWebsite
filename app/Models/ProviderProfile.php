@@ -28,7 +28,8 @@ class ProviderProfile extends Model
     }
     public function reviews()
 {
-    return $this->hasMany(Review::class);
+    return $this->hasMany(Review::class, 'provider_id', 'user_id');
 }
+
 
 }

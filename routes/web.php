@@ -21,6 +21,8 @@ Route::controller(PageController::class)->group(function () {
 
 
 Route::get('/services', [ServiceController::class, 'browse'])->name('services.index');
+Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
+
 
 
 Route::middleware(['auth', 'role:admin'])

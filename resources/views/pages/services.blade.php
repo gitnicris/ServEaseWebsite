@@ -24,7 +24,6 @@
 
                         <!-- 🧾 Details -->
                         <div class="p-6 flex-1 flex flex-col relative">
-                            <!-- ✅ Approved Badge -->
                             <span class="absolute top-4 right-4 bg-green-600 text-xs px-2 py-1 rounded-md font-semibold">
                                 ✅ Approved
                             </span>
@@ -38,20 +37,30 @@
                             </div>
                         </div>
 
-                        <!-- 👤 Provider Info + Booking -->
+                        <!-- 👤 Provider Info + Actions -->
                         <div class="p-4 bg-black/50 border-t border-white/10 text-sm text-gray-300 flex justify-between items-center">
                             <div class="flex items-center space-x-2">
                                 <i class="bi bi-person-circle text-orange-400"></i>
                                 <span>{{ $service->provider->name ?? 'Unknown Provider' }}</span>
                             </div>
 
-                            <!-- ✅ Booking Form -->
-                            <form action="{{ route('customer.book.service', $service->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="bg-orange-500 hover:bg-orange-600 px-3 py-1 rounded-md text-white font-medium text-xs">
-                                    Book Now
-                                </button>
-                            </form>
+                            <div class="flex space-x-2">
+                                <!-- 🔍 View Details -->
+                                <a href="{{ route('services.show', $service->id) }}" 
+                                   class="bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-md text-white font-medium text-xs">
+                                    View Details
+                                </a>
+
+                                <!-- ✅ Book Now -->
+                                @if(Auth::check() && Auth::user()->role === 'customer')
+                                    <form action="{{ route('customer.book.service', $service->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="bg-orange-500 hover:bg-orange-600 px-3 py-1 rounded-md text-white font-medium text-xs">
+                                            Book Now
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 @endif

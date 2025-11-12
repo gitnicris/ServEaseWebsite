@@ -45,29 +45,34 @@ class ProviderController extends Controller
 
     // 👤 Profile
     public function profile()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        // Create default provider profile if it doesn't exist
-        $profile = ProviderProfile::firstOrCreate(
-            ['user_id' => $user->id],
-            [
-                'name' => $user->name,
-                'bio' => '',
-                'address' => '',
-                'gmail' => $user->email ?? '',
-                'phone' => '',
-                'photo' => null,
-                'about' => '',
-            ]
-        );
+    // Create profile if it doesn't exist
+    $profile = ProviderProfile::firstOrCreate(
+        ['user_id' => $user->id],
+        [
+            'name' => $user->name,
+            'bio' => '',
+            'address' => '',
+            'gmail' => $user->email ?? '',
+            'phone' => '',
+            'photo' => null,
+            'about' => '',
+        ]
+    );
 
-        // Compute reviews
-        $reviews = Review::where('provider_id', $profile->id)->latest()->get();
-        $averageRating = $reviews->avg('rating');
+    // ✅ Get reviews based on provider user_id
+    $reviews = Review::where('provider_id', $user->id)
+        ->with('customer')
+        ->latest()
+        ->get();
 
-        return view('provider.profile', compact('user', 'profile', 'reviews', 'averageRating'));
-    }
+    $averageRating = round($reviews->avg('rating'), 1);
+
+    return view('provider.profile', compact('user', 'profile', 'reviews', 'averageRating'));
+}
+
 
     // ✏️ Edit Provider Profile
     public function editProfile()

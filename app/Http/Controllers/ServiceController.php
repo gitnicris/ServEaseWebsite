@@ -101,4 +101,21 @@ class ServiceController extends Controller
         return redirect()->route('provider.services')
             ->with('success', 'Service deleted successfully.');
     }
+    public function show(Service $service)
+{
+    if ($service->status !== 'approved') {
+        abort(404);
+    }
+
+    $service->load([
+        'provider.providerProfile', // ✅ this is a real relationship
+        'reviews.customer',
+    ]);
+
+    return view('pages.service-show', compact('service'));
+}
+
+
+
+
 }

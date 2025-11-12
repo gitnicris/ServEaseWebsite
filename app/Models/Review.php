@@ -2,20 +2,42 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Review extends Model
 {
-    protected $fillable = ['provider_id', 'user_id', 'rating', 'comment'];
+    use HasFactory;
 
-    public function provider()
+    protected $fillable = [
+        'service_id',
+        'provider_id',
+        'customer_id',
+        'rating',
+        'comment',
+    ];
+
+    /**
+     * The service being reviewed
+     */
+    public function service()
     {
-        // Link to ProviderProfile model
-        return $this->belongsTo(ProviderProfile::class, 'provider_id');
+        return $this->belongsTo(Service::class);
     }
 
-    public function user()
+    /**
+     * The provider (User with role = provider)
+     */
+    public function provider()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'provider_id');
+    }
+
+    /**
+     * The customer (User with role = customer) who left the review
+     */
+    public function customer()
+    {
+        return $this->belongsTo(User::class, 'customer_id');
     }
 }

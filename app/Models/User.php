@@ -91,6 +91,18 @@ public function reviews()
 {
     return $this->hasMany(Review::class);
 }
+public function profile()
+{
+    if ($this->role === 'provider') {
+        return $this->providerProfile();
+    }
+
+    if ($this->role === 'customer') {
+        return $this->customerProfile();
+    }
+
+    return null;
+}
 
 
 }
