@@ -69,10 +69,7 @@
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-medium text-gray-800">Change Password</h2>
 
-        {{-- ✅ Add Forgot Password Link --}}
-        <a href="{{ route('password.request') }}" class="text-sm text-blue-600 hover:underline">
-            Forgot Password?
-        </a>
+        
     </div>
 
     <form action="{{ route('provider.settings.updatePassword') }}" method="POST" class="space-y-4">
