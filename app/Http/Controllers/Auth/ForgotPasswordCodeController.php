@@ -14,7 +14,7 @@ class ForgotPasswordCodeController extends Controller
     // Step 1: Show email input form
     public function showEmailForm()
     {
-        return view('auth.forgot-password');
+        return view('auth.forgot-password-code');
     }
 
     // Step 2: Send verification code
@@ -83,7 +83,7 @@ class ForgotPasswordCodeController extends Controller
     // Step 5: Show reset password form
     public function showResetForm()
     {
-        return view('auth.reset-password');
+        return view('auth.reset-password-code');
     }
 
     // Step 6: Reset password
