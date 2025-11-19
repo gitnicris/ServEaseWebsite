@@ -53,7 +53,6 @@
 </head>
 <body class="flex min-h-screen animate__animated animate__fadeIn">
 
-    <!-- Sidebar -->
     <aside class="w-64 sidebar p-6 flex flex-col justify-between">
         <div>
             <h2 class="text-2xl font-bold text-orange-400 mb-6">ServEase Admin</h2>
