@@ -77,7 +77,6 @@
         </form>
     </aside>
 
-    <!-- Main Content -->
     <main class="flex-1 p-10 overflow-y-auto">
         <h1 class="text-3xl font-bold mb-10 text-white">📊 Dashboard Overview</h1>
 
