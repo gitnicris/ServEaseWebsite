@@ -145,10 +145,7 @@
             </button>
         </div>
 
-        <a href="{{ route('home') }}">Home</a>
-        <a href="{{ route('services.index') }}">Services</a>
-        <a href="{{ route('about') }}">About</a>
-
+        
         <hr class="border-gray-600">
 
         @auth
@@ -185,12 +182,6 @@
                     Logout
                 </button>
             </form>
-        @else
-            <a href="{{ route('login') }}">Login</a>
-            <a href="{{ route('register') }}" 
-               class="bg-white/20 hover:bg-white/30 w-full text-center px-3 py-1 rounded-md text-sm font-semibold mt-2">
-               Register
-            </a>
         @endauth
     </div>
 
