@@ -12,6 +12,8 @@ use App\Http\Controllers\GoogleController;
 use Illuminate\Support\Facades\Password;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Provider\ProviderSettingsController;
+use App\Http\Controllers\Auth\NewPasswordController;
+
 
 
 Route::controller(PageController::class)->group(function () {
@@ -107,8 +109,14 @@ Route::post('/forgot-password-code', [ForgotPasswordCodeController::class, 'send
 Route::get('/verify-code', [ForgotPasswordCodeController::class, 'showVerifyForm'])->name('password.code.verify.form');
 Route::post('/verify-code', [ForgotPasswordCodeController::class, 'verifyCode'])->name('password.code.verify');
 
-Route::get('/reset-password-code', [ForgotPasswordCodeController::class, 'showResetForm'])->name('password.reset.form');
-Route::post('/reset-password-code', [ForgotPasswordCodeController::class, 'resetPassword'])->name('password.reset.code');
+// After verifying code → show reset password form
+Route::get('/reset-password', [NewPasswordController::class, 'create'])
+    ->name('password.reset.form');
+
+// Submit new password
+Route::post('/reset-password', [NewPasswordController::class, 'store'])
+    ->name('password.reset.code');
+
 
 
 
