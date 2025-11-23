@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -31,11 +31,6 @@
             backdrop-filter: blur(10px);
             text-align: center;
             padding: 2rem;
-        }
-        .left-panel img {
-            width: 130px;
-            height: auto;
-            margin-bottom: 1rem;
         }
         .left-panel h1 {
             font-size: 3rem;
@@ -87,6 +82,21 @@
 
     <div class="right-panel animate__animated animate__fadeInRight">
         <div class="card">
+
+            {{-- SUCCESS MESSAGE --}}
+            @if (session('status'))
+                <div class="mb-4 p-3 bg-green-500/20 text-green-300 rounded-md text-center">
+                    {{ session('status') }}
+                </div>
+            @endif
+
+            {{-- ERROR MESSAGE --}}
+            @if (session('error'))
+                <div class="mb-4 p-3 bg-red-500/20 text-red-300 rounded-md text-center">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             <h2 class="text-2xl font-bold text-center text-orange-400 mb-6">Reset Password</h2>
 
             <form method="POST" action="{{ route('password.code.send') }}" class="space-y-5">
@@ -94,7 +104,13 @@
                 <div>
                     <label for="email" class="block text-white font-semibold mb-1">Email</label>
                     <input type="email" name="email" id="email" required placeholder="Enter your email"
+                           value="{{ old('email') }}"
                            class="w-full p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 text-gray-800">
+
+                    {{-- Validation Error --}}
+                    @error('email')
+                        <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div class="text-center">

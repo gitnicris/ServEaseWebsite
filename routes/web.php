@@ -101,21 +101,29 @@ Route::middleware(['auth', 'role:customer'])
         });
     });
 
-        use App\Http\Controllers\Auth\ForgotPasswordCodeController;
+    use App\Http\Controllers\Auth\ForgotPasswordCodeController;
+use App\Http\Controllers\Auth\ResetPasswordCodeController;
 
-Route::get('/forgot-password-code', [ForgotPasswordCodeController::class, 'showEmailForm'])->name('password.code.request');
-Route::post('/forgot-password-code', [ForgotPasswordCodeController::class, 'sendCode'])->name('password.code.send');
+// Forgot Password (Code Method)
+Route::get('/forgot-password', [ForgotPasswordCodeController::class, 'showEmailForm'])
+    ->name('password.code.request');
 
-Route::get('/verify-code', [ForgotPasswordCodeController::class, 'showVerifyForm'])->name('password.code.verify.form');
-Route::post('/verify-code', [ForgotPasswordCodeController::class, 'verifyCode'])->name('password.code.verify');
+Route::post('/forgot-password/send-code', [ForgotPasswordCodeController::class, 'sendCode'])
+    ->name('password.code.send');
 
-// After verifying code → show reset password form
-Route::get('/reset-password', [NewPasswordController::class, 'create'])
+Route::get('/forgot-password/verify', [ForgotPasswordCodeController::class, 'showVerifyForm'])
+    ->name('password.code.verify.form');
+
+Route::post('/forgot-password/verify', [ForgotPasswordCodeController::class, 'verifyCode'])
+    ->name('password.code.verify');
+
+// Reset Password (Final step)
+Route::get('/reset-password-code', [ResetPasswordCodeController::class, 'showResetForm'])
     ->name('password.reset.form');
 
-// Submit new password
-Route::post('/reset-password', [NewPasswordController::class, 'store'])
-    ->name('password.reset.code');
+Route::post('/reset-password-code', [ResetPasswordCodeController::class, 'resetPassword'])
+    ->name('password.reset');
+
 
 
 
@@ -135,6 +143,16 @@ Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store
 
 
 Route::middleware(['auth', 'role:provider'])
+    ->prefix('provider')
+    ->as('provider.')
+    ->group(function () {
+
+        Route::get('/settings', [ProviderSettingsController::class, 'index'])->name('settings');
+        Route::put('/settings/update-account', [ProviderSettingsController::class, 'updateAccount'])->name('settings.updateAccount');
+        Route::put('/settings/update-password', [ProviderSettingsController::class, 'updatePassword'])->name('settings.updatePassword');
+        Route::delete('/settings/delete-account', [ProviderSettingsController::class, 'destroyAccount'])->name('settings.destroyAccount');
+    });
+    Route::middleware(['auth', 'role:customer'])
     ->prefix('provider')
     ->as('provider.')
     ->group(function () {
