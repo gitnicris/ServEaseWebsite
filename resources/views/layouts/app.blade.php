@@ -139,6 +139,7 @@
                 <a href="{{ route('customer.profile') }}">Profile</a>
                 <a href="{{ route('customer.bookings') }}">My Bookings</a>
                 <a href="{{ route('customer.messages.index') }}"><i class="bi bi-chat-dots"></i> Chats</a>
+                <a href="{{ route('provider.settings') }}">Account Settings</a>
             @endif
 
             <form action="{{ route('logout') }}" method="POST" class="mt-4">

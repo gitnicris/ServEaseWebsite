@@ -163,6 +163,10 @@ Route::middleware(['auth', 'role:provider'])
         Route::delete('/settings/delete-account', [ProviderSettingsController::class, 'destroyAccount'])->name('settings.destroyAccount');
     });
 
+use App\Http\Controllers\PublicProviderController;
+
+Route::get('/providers/{provider}/profile', [PublicProviderController::class, 'show'])
+    ->name('providers.public-profile');
 
 
 require __DIR__ . '/auth.php';

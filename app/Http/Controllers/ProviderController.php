@@ -44,7 +44,7 @@ class ProviderController extends Controller
     }
 
     // 👤 Profile
-    public function profile()
+public function profile()
 {
     $user = Auth::user();
 
@@ -52,26 +52,30 @@ class ProviderController extends Controller
     $profile = ProviderProfile::firstOrCreate(
         ['user_id' => $user->id],
         [
-            'name' => $user->name,
-            'bio' => '',
+            'name'    => $user->name,
+            'bio'     => '',
             'address' => '',
-            'gmail' => $user->email ?? '',
-            'phone' => '',
-            'photo' => null,
-            'about' => '',
+            'gmail'   => $user->email ?? '',
+            'phone'   => '',
+            'photo'   => null,
+            'about'   => '',
         ]
     );
 
-    // ✅ Get reviews based on provider user_id
-    $reviews = Review::where('provider_id', $user->id)
-        ->with('customer')
-        ->latest()
-        ->get();
+    // ✅ Load reviews via the relation on ProviderProfile
+    // Make sure ProviderProfile has: public function reviews() { ... }
+    $profile->load(['reviews.customer']);
 
-    $averageRating = round($reviews->avg('rating'), 1);
+    // Use the loaded relation for average rating
+    $averageRating = round($profile->reviews->avg('rating') ?? 0, 1);
 
-    return view('provider.profile', compact('user', 'profile', 'reviews', 'averageRating'));
+    return view('provider.profile', [
+        'user'          => $user,
+        'profile'       => $profile,
+        'averageRating' => $averageRating,
+    ]);
 }
+
 
 
     // ✏️ Edit Provider Profile

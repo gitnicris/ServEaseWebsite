@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use App\Models\Service;
 use App\Models\ProviderProfile;
 use App\Models\CustomerProfile;
+use App\Models\Review;
 
 class User extends Authenticatable
 {
@@ -89,8 +90,9 @@ public function providerBookings()
 }
 public function reviews()
 {
-    return $this->hasMany(Review::class);
+    return $this->hasMany(Review::class, 'provider_id', 'id');
 }
+
 public function profile()
 {
     if ($this->role === 'provider') {
