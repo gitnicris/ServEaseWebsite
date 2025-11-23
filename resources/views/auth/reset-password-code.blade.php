@@ -55,20 +55,10 @@
                        class="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-white focus:ring-2 focus:ring-orange-400 focus:outline-none">
             </div>
 
-            <!-- Submit Button -->
-            <button type="submit"
-                    class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-lg font-medium transition">
-                Update Password
-            </button>
-        </form>
-
-        <p class="text-center text-gray-400 text-sm mt-6">
-            <a href="{{ route('login') }}" class="text-orange-400 hover:text-orange-300 font-medium">
-                ← Back to Login
-            </a>
-        </p>
-
-    </div>
+        <button class="btn btn-success w-100">Update Password</button>
+    </form>
+</div>
+@endsection
 
 </body>
 </html>

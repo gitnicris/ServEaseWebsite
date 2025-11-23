@@ -55,26 +55,10 @@
                 @enderror
             </div>
 
-            <button type="submit"
-                    class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-lg font-medium transition">
-                Verify Code
-            </button>
-        </form>
-
-        <p class="text-center text-gray-400 text-sm mt-6">
-            Didn't receive a code?
-            <a href="{{ route('password.code.verify') }}" class="text-orange-400 hover:text-orange-300 font-medium">
-                Resend Code
-            </a>
-        </p>
-
-        <p class="text-center text-gray-400 text-sm mt-2">
-            <a href="{{ route('login') }}" class="text-orange-400 hover:text-orange-300 font-medium">
-                ← Back to Login
-            </a>
-        </p>
-
-    </div>
+        <button class="btn btn-primary w-100">Verify Code</button>
+    </form>
+</div>
+@endsection
 
 </body>
 </html>
