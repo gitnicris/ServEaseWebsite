@@ -47,7 +47,7 @@
                 @enderror
             </div>
 
-            <!-- Confirm Password -->
+            <!--Confirm Password -->
             <div>
                 <label class="block text-gray-300 text-sm mb-2">Confirm Password</label>
                 <input type="password" name="password_confirmation" required

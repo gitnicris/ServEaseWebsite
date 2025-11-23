@@ -90,7 +90,7 @@
             </button>
         </form>
 
-        <!-- Footer -->
+      
         <p class="text-center text-gray-400 text-sm mt-6">
             Already have an account?
             <a href="{{ route('login') }}" class="text-orange-400 hover:text-orange-300 font-medium">Log in</a>

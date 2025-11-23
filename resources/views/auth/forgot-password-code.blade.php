@@ -56,7 +56,7 @@
                 @enderror
             </div>
 
-            <!-- Submit -->
+           
             <button type="submit"
                     class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-lg font-medium transition">
                 Send Verification Code

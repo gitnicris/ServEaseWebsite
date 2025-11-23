@@ -43,7 +43,7 @@
         <form action="{{ route('password.code.verify') }}" method="POST" class="space-y-6">
             @csrf
 
-            <!-- Code Input -->
+            <!--Code Input -->
             <div>
                 <label class="block text-gray-300 text-sm mb-2">Enter 6-Digit Code</label>
                 <input type="text" maxlength="6" name="code" required

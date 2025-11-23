@@ -18,7 +18,7 @@
 
 <body class="flex items-center justify-center min-h-screen px-4 bg-gradient-to-br from-[#141426] to-[#0b0b12]">
 
-    <!-- Container -->
+    
     <div class="w-full max-w-md bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl p-8 shadow-xl">
 
         <!-- Logo -->
