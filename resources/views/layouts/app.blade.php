@@ -5,151 +5,121 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'ServEase')</title>
 
-    <!-- 🧩 Bootstrap & Icons -->
+    <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- 🧩 Google Font -->
+    <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
-    <!-- 🧩 Tailwind -->
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
         :root {
-            --primary: #6a11cb;
-            --secondary: #2575fc;
+            --primary: #11100fff;
+            --secondary: #11100fff;
         }
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: #fff;
+            background: #f5f7fb;
+            color: #222;
             min-height: 100vh;
-            overflow-x: hidden;
             display: flex;
             flex-direction: column;
         }
 
-        /* 🧭 Navbar */
+        /* NAVBAR FIX (no more transparency issue) */
         nav {
-            background: rgba(15, 15, 30, 0.6);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
         }
 
         nav a {
-            position: relative;
             color: #e5e5e5;
-            transition: color 0.3s ease;
+            transition: 0.2s;
         }
 
         nav a:hover,
         nav a.active {
-            color: #ffffff;
+            color: #fff;
         }
 
-        nav a::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #fff;
-            transition: width 0.3s ease;
+        /* Sidebar */
+        .sidebar {
+            background: #1b1b2f;
+            box-shadow: 3px 0 15px rgba(0,0,0,0.25);
+            transform: translateX(-100%);
+            transition: 0.3s ease-in-out;
         }
 
-        nav a:hover::after,
-        nav a.active::after {
+        /* Main Content */
+        main {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: auto;
             width: 100%;
         }
 
-        /* 📱 Sidebar */
-        .sidebar {
-            transition: transform 0.3s ease-in-out;
-            background: rgba(20, 20, 40, 0.9);
-            backdrop-filter: blur(14px);
-            border-right: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .sidebar a {
-            color: #d1d5db;
-            transition: color 0.2s ease;
-        }
-
-        .sidebar a:hover {
-            color: #ffffff;
-        }
-
-        /* 🦶 Footer */
+        /* Footer */
         footer {
-            background: rgba(0, 0, 0, 0.25);
-            color: #ccc;
-        }
-
-        /* 📱 Responsive Adjustments */
-        @media (max-width: 768px) {
-            main {
-                padding: 1.5rem !important;
-            }
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            margin-top: auto;
         }
     </style>
 </head>
+
 <body>
 
-    <!-- 🧭 Navbar -->
-    <nav class="flex justify-between items-center px-6 py-4 sticky top-0 z-50 shadow-md">
-        <div class="flex items-center space-x-3">
-            <button id="burgerBtn" class="text-3xl text-white focus:outline-none">
-                <i class="bi bi-list"></i>
-            </button>
-            <h1 class="text-2xl font-bold text-white tracking-wide">
-                <i class="bi bi-stars me-1"></i> ServEase
+    <!-- Navbar -->
+    <nav class="flex justify-between items-center px-6 py-4 sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <button id="burgerBtn" class="text-3xl text-white"><i class="bi bi-list"></i></button>
+            <h1 class="text-2xl font-bold text-white flex items-center gap-1">
+                <i class="bi bi-stars"></i> ServEase
             </h1>
         </div>
 
-        <!-- 🌐 Desktop Nav -->
+        <!-- Desktop Nav -->
         <div class="hidden md:flex items-center space-x-6 text-lg">
             <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
             <a href="{{ route('services.index') }}" class="{{ request()->routeIs('services.index') ? 'active' : '' }}">Services</a>
             <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">About</a>
         </div>
 
-        <!-- 👤 Auth Section -->
-        <div class="hidden md:flex items-center space-x-4">
+        <!-- Auth -->
+        <div class="hidden md:flex items-center gap-3">
             @auth
-                <div class="flex items-center space-x-3">
-                    <img src="{{ Auth::user()->profile_photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name) }}" 
-                         alt="Profile" 
-                         class="w-9 h-9 rounded-full border-2 border-white shadow-md object-cover">
-                    <span class="text-sm text-gray-200 font-medium">
-                        Hi, {{ Auth::user()->name }}
-                    </span>
-                </div>
+                <img src="{{ Auth::user()->profile_photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name) }}"
+                     class="w-9 h-9 rounded-full border-2 border-white shadow-md object-cover">
+
+                <span class="text-white text-sm">Hi, {{ Auth::user()->name }}</span>
+
             @else
-                <a href="{{ route('login') }}" class="hover:text-white font-medium">Login</a>
-                <a href="{{ route('register') }}" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-md text-sm font-semibold text-white">
+                <a href="{{ route('login') }}" class="text-white">Login</a>
+                <a href="{{ route('register') }}" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-white">
                     Register
                 </a>
             @endauth
         </div>
     </nav>
 
-    <!-- 📱 Sidebar -->
-    <div id="sidebar" class="sidebar fixed top-0 left-0 w-64 h-full z-50 transform -translate-x-full flex flex-col p-6 space-y-5 text-lg text-white">
+    <!-- Sidebar -->
+    <aside id="sidebar"
+           class="sidebar fixed top-0 left-0 w-64 h-full z-50 p-6 text-white flex flex-col space-y-5">
+        
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-bold">Menu</h2>
-            <button id="closeSidebar" class="text-3xl hover:text-gray-300">
-                <i class="bi bi-x-lg"></i>
-            </button>
+            <h2 class="text-xl font-semibold">Menu</h2>
+            <button id="closeSidebar" class="text-2xl"><i class="bi bi-x"></i></button>
         </div>
 
-        
         <hr class="border-gray-600">
 
         @auth
-            <span class="text-sm text-gray-300">Hi, {{ Auth::user()->name }}</span>
+            <span class="text-sm text-gray-300 mb-2">Hi, {{ Auth::user()->name }}</span>
+
             @php $role = Auth::user()->role; @endphp
 
             @if ($role === 'provider')
@@ -158,67 +128,61 @@
                 <a href="{{ route('provider.services') }}">My Services</a>
                 <a href="{{ route('provider.pending') }}">Pending Bookings</a>
                 <a href="{{ route('provider.bookings') }}">Bookings</a>
-                <a href="{{ route('provider.messages.index') }}" class="flex items-center space-x-2">
-                    <i class="bi bi-chat-dots"></i> <span>Chats</span>
-                </a>
+                <a href="{{ route('provider.messages.index') }}"><i class="bi bi-chat-dots"></i> Chats</a>
                 <a href="{{ route('provider.settings') }}">Account Settings</a>
 
             @elseif ($role === 'admin')
                 <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+
             @else
                 <a href="{{ route('customer.dashboard') }}">Dashboard</a>
                 <a href="{{ route('customer.profile') }}">Profile</a>
                 <a href="{{ route('customer.bookings') }}">My Bookings</a>
-                <a href="{{ route('customer.messages.index') }}" class="flex items-center space-x-2">
-                    <i class="bi bi-chat-dots"></i> <span>Chats</span>
-                </a>
-              
+                <a href="{{ route('customer.messages.index') }}"><i class="bi bi-chat-dots"></i> Chats</a>
             @endif
 
-            <form method="POST" action="{{ route('logout') }}">
+            <form action="{{ route('logout') }}" method="POST" class="mt-4">
                 @csrf
-                <button type="submit"
-                        class="bg-red-500 hover:bg-red-600 w-full text-center px-3 py-1 rounded-md text-sm font-semibold text-white mt-3">
-                    Logout
-                </button>
+                <button class="w-full bg-red-600 hover:bg-red-700 py-2 rounded text-white">Logout</button>
             </form>
-        @endauth
-    </div>
 
-    <!-- 🔲 Overlay -->
+        @endauth
+    </aside>
+
+    <!-- Overlay -->
     <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
 
-    <!-- 🧩 Main Content -->
-    <main class="flex-1 p-8 md:p-10 bg-white text-gray-900 shadow-inner rounded-t-none mt-0 min-h-[calc(100vh-64px)]">
+    <!-- Main Content -->
+    <main>
         @yield('content')
     </main>
 
-    <!-- 🦶 Footer -->
-    <footer class="text-center py-6 text-sm mt-auto">
-        © {{ date('Y') }} <span class="text-white font-semibold">ServEase</span>. All Rights Reserved.
+    <!-- Footer -->
+    <footer class="text-center py-4 text-sm">
+        © {{ date('Y') }} <strong>ServEase</strong>. All Rights Reserved.
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const burgerBtn = document.getElementById("burgerBtn");
             const sidebar = document.getElementById("sidebar");
             const overlay = document.getElementById("overlay");
-            const closeSidebar = document.getElementById("closeSidebar");
+            const open = document.getElementById("burgerBtn");
+            const close = document.getElementById("closeSidebar");
 
-            burgerBtn.addEventListener("click", () => {
-                sidebar.classList.remove("-translate-x-full");
+            open.onclick = () => {
+                sidebar.style.transform = "translateX(0%)";
                 overlay.classList.remove("hidden");
-            });
+            };
 
             const hideSidebar = () => {
-                sidebar.classList.add("-translate-x-full");
+                sidebar.style.transform = "translateX(-100%)";
                 overlay.classList.add("hidden");
             };
 
-            closeSidebar.addEventListener("click", hideSidebar);
-            overlay.addEventListener("click", hideSidebar);
+            close.onclick = hideSidebar;
+            overlay.onclick = hideSidebar;
         });
     </script>
+
 </body>
 </html>

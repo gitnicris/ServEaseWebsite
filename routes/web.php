@@ -153,8 +153,8 @@ Route::middleware(['auth', 'role:provider'])
         Route::delete('/settings/delete-account', [ProviderSettingsController::class, 'destroyAccount'])->name('settings.destroyAccount');
     });
     Route::middleware(['auth', 'role:customer'])
-    ->prefix('provider')
-    ->as('provider.')
+    ->prefix('customer')
+    ->as('customer.')
     ->group(function () {
 
         Route::get('/settings', [ProviderSettingsController::class, 'index'])->name('settings');
