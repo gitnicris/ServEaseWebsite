@@ -546,15 +546,7 @@
                        class="{{ request()->routeIs('about') ? 'active' : '' }}">About</a>
                 </nav>
 
-                {{-- Search bar --}}
-                <form class="topbar-search d-none d-md-block" method="GET" action="">
-                    <input type="text" name="search"
-                           value="{{ request('search') }}"
-                           placeholder="Search here...">
-                    <button type="submit">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </form>
+            
             </div>
 
             <div class="topbar-right">
