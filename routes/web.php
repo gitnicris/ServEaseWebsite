@@ -12,6 +12,8 @@ use App\Http\Controllers\GoogleController;
 use Illuminate\Support\Facades\Password;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Provider\ProviderSettingsController;
+use App\Http\Controllers\Customer\CustomerSettingsController;
+
 use App\Http\Controllers\Auth\NewPasswordController;
 
 
@@ -157,10 +159,10 @@ Route::middleware(['auth', 'role:provider'])
     ->as('customer.')
     ->group(function () {
 
-        Route::get('/settings', [ProviderSettingsController::class, 'index'])->name('settings');
-        Route::put('/settings/update-account', [ProviderSettingsController::class, 'updateAccount'])->name('settings.updateAccount');
-        Route::put('/settings/update-password', [ProviderSettingsController::class, 'updatePassword'])->name('settings.updatePassword');
-        Route::delete('/settings/delete-account', [ProviderSettingsController::class, 'destroyAccount'])->name('settings.destroyAccount');
+        Route::get('/settings', [CustomerSettingsController::class, 'index'])->name('settings');
+        Route::put('/settings/update-account', [CustomerSettingsController::class, 'updateAccount'])->name('settings.updateAccount');
+        Route::put('/settings/update-password', [CustomerSettingsController::class, 'updatePassword'])->name('settings.updatePassword');
+        Route::delete('/settings/delete-account', [CustomerSettingsController::class, 'destroyAccount'])->name('settings.destroyAccount');
     });
 
 use App\Http\Controllers\PublicProviderController;

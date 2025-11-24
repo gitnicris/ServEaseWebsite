@@ -31,7 +31,7 @@
     <div class="bg-white shadow-sm rounded-lg p-6 border border-gray-200">
         <h2 class="text-xl font-medium text-gray-800 mb-4">Account Information</h2>
 
-        <form action="{{ route('provider.settings.updateAccount') }}" method="POST" class="space-y-4">
+        <form action="{{ route('customer.settings.updateAccount') }}" method="POST" class="space-y-4">
             @csrf
             @method('PUT')
 
@@ -72,7 +72,7 @@
         
     </div>
 
-    <form action="{{ route('provider.settings.updatePassword') }}" method="POST" class="space-y-4">
+    <form action="{{ route('customer.settings.updatePassword') }}" method="POST" class="space-y-4">
         @csrf
         @method('PUT')
 
@@ -122,7 +122,7 @@
             This action is permanent. Once deleted, your account cannot be recovered.
         </p>
 
-        <form action="{{ route('provider.settings.destroyAccount') }}" method="POST"
+        <form action="{{ route('customer.settings.destroyAccount') }}" method="POST"
               onsubmit="return confirm('Are you sure you want to delete your account?');"
               class="space-y-4">
             @csrf
