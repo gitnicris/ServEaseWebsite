@@ -11,60 +11,79 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: #0f0f16;
+            background: #f3f4f6; /* match login page background */
         }
     </style>
 </head>
 
-<body class="flex items-center justify-center min-h-screen px-4 bg-gradient-to-br from-[#141426] to-[#0b0b12]">
+<body class="min-h-screen flex items-center justify-center px-4">
 
-    <!-- Card -->
-    <div class="w-full max-w-lg bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl p-8 shadow-xl">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
 
-        <div class="text-center mb-6">
-            <h2 class="text-white text-2xl font-semibold tracking-tight">Forgot Password</h2>
-            <p class="text-gray-400 text-sm mt-1">Enter your email to receive a verification code</p>
+        <!-- Title Section (Matches login.blade.php) -->
+        <div class="text-center mb-8">
+            <h1 class="text-sm font-semibold text-gray-500 tracking-[0.2em] uppercase">
+                Servease
+            </h1>
+
+            <h2 class="text-2xl font-semibold text-gray-900 mt-5">
+                Forgot Password
+            </h2>
+
+            <p class="text-sm text-gray-500 mt-1">
+                Enter your email to receive a verification code.
+            </p>
         </div>
 
         {{-- SUCCESS MESSAGE --}}
         @if (session('status'))
-            <div class="mb-4 p-3 bg-green-500/20 text-green-300 rounded-md text-center">
+            <div class="mb-4 p-3 bg-green-100 text-green-700 border border-green-300 rounded-md text-sm">
                 {{ session('status') }}
             </div>
         @endif
 
         {{-- ERROR MESSAGE --}}
         @if (session('error'))
-            <div class="mb-4 p-3 bg-red-500/20 text-red-300 rounded-md text-center">
+            <div class="mb-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded-md text-sm">
                 {{ session('error') }}
             </div>
         @endif
 
+        <!-- Form -->
         <form method="POST" action="{{ route('password.code.send') }}" class="space-y-5">
             @csrf
 
             <!-- Email -->
             <div>
-                <label for="email" class="block text-gray-300 text-sm mb-1">Email</label>
-                <input type="email" id="email" name="email" required
-                       value="{{ old('email') }}"
-                       placeholder="Enter your email"
-                       class="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:ring-2 focus:ring-orange-400 focus:outline-none">
+                <label for="email" class="block text-gray-700 text-sm mb-1">Email</label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    value="{{ old('email') }}"
+                    placeholder="you@example.com"
+                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
 
                 @error('email')
-                    <p class="text-sm text-red-400 mt-1">{{ $message }}</p>
+                    <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
-           
-            <button type="submit"
-                    class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-lg font-medium transition">
+            <!-- Submit Button -->
+            <button
+                type="submit"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-sm font-medium shadow-sm transition"
+            >
                 Send Verification Code
             </button>
         </form>
 
-        <p class="text-center text-gray-400 text-sm mt-6">
-            <a href="{{ route('login') }}" class="text-orange-400 hover:text-orange-300 font-medium">
+        <!-- Back to login -->
+        <p class="text-center text-gray-500 text-sm mt-6">
+            <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-500 font-medium">
                 ← Back to Login
             </a>
         </p>
