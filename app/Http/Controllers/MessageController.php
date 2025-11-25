@@ -36,33 +36,43 @@ class MessageController extends Controller
      * Show a single chat thread for a booking
      */
     public function index($bookingId)
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        $booking = Booking::with(['service', 'customer', 'provider'])->findOrFail($bookingId);
+    $booking = Booking::with(['service', 'customer', 'provider'])
+        ->findOrFail($bookingId);
 
-        // Ensure the user belongs to this chat
-        if ($user->id !== $booking->customer_id && $user->id !== $booking->provider_id) {
-            abort(403, 'Unauthorized access to this conversation.');
-        }
+    if ($user->id !== $booking->customer_id && $user->id !== $booking->provider_id) {
+        abort(403, 'Unauthorized access to this conversation.');
+    }
 
-        $messages = Message::where('booking_id', $bookingId)
-            ->orderBy('created_at', 'asc')
-            ->get();
+    $messages = Message::where('booking_id', $bookingId)
+        ->orderBy('created_at', 'asc')
+        ->get();
 
-        // 🩵 Include all user's conversations for the chat sidebar
-        $conversations = Booking::where(function ($query) use ($user) {
+    $conversations = Booking::where(function ($query) use ($user) {
             $query->where('customer_id', $user->id)
                   ->orWhere('provider_id', $user->id);
         })
-        ->with(['customer', 'provider', 'messages' => function ($query) {
-            $query->latest()->take(1);
-        }])
+        ->with([
+            'customer',
+            'provider',
+            'messages' => function ($q) { $q->latest()->take(1); }
+        ])
         ->latest()
         ->get();
 
-        return view('messages.chat', compact('booking', 'messages', 'conversations'));
-    }
+    // ✅ now it's a Booking model, not a string
+    $activeConversation = $booking;
+
+    return view('messages.chat', compact(
+        'booking',
+        'messages',
+        'conversations',
+        'activeConversation'
+    ));
+}
+
 
     /**
      * Send a message between customer and provider

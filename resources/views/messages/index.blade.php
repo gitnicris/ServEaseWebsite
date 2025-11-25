@@ -3,144 +3,89 @@
 @section('title', 'Messages')
 
 @section('content')
-<div x-data="{ showSidebar: window.innerWidth >= 768 }" 
-     @resize.window="showSidebar = window.innerWidth >= 768"
-     class="flex h-[calc(100vh-180px)] bg-gray-900 text-white rounded-lg overflow-hidden shadow-lg relative">
+<div 
+    x-data="{ showSidebar: true }"
+    @resize.window="showSidebar = window.innerWidth >= 768"
+    class="flex gap-6"
+>
+    {{-- LEFT: CONVERSATION LIST CARD --}}
+    <div 
+        x-show="showSidebar"
+        x-transition
+        class="w-full md:w-1/3 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden relative"
+    >
+        {{-- Header --}}
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex h-8 w-8 rounded-full bg-blue-100 text-blue-600 items-center justify-center">
+                    <i class="bi bi-chat-dots"></i>
+                </span>
+                <h2 class="text-base font-semibold text-gray-800">Messages</h2>
+            </div>
 
-    {{-- MOBILE MENU BUTTON --}}
-    <button @click="showSidebar = !showSidebar"
-            class="absolute top-3 left-3 z-20 md:hidden bg-gray-800 p-2 rounded-lg shadow-md hover:bg-gray-700 transition">
-        <svg xmlns="http://www.w3.org/2000/svg" 
-             fill="none" viewBox="0 0 24 24" stroke-width="2" 
-             stroke="currentColor" class="w-6 h-6 text-orange-400">
-            <path stroke-linecap="round" stroke-linejoin="round" 
-                  d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-    </button>
-
-    {{-- SIDEBAR: CONVERSATIONS LIST --}}
-    <div x-show="showSidebar" 
-         x-transition 
-         class="w-full md:w-1/3 bg-gray-800 border-r border-gray-700 flex flex-col absolute md:relative inset-0 md:inset-auto z-10">
-        <h2 class="text-xl font-semibold text-orange-400 p-4 border-b border-gray-700 flex justify-between items-center">
-            Messages
-            <button @click="showSidebar = false" class="md:hidden text-gray-400 hover:text-white">
-                ✕
+            {{-- Close on mobile --}}
+            <button 
+                @click="showSidebar = false"
+                class="md:hidden text-gray-400 hover:text-gray-700 text-lg"
+            >
+                <i class="bi bi-x-lg"></i>
             </button>
-        </h2>
+        </div>
 
-        <div class="flex-1 overflow-y-auto custom-scrollbar">
+        {{-- List --}}
+        <div class="max-h-[440px] overflow-y-auto">
             @forelse($conversations as $conversation)
                 @php
                     $otherUser = auth()->user()->role === 'provider'
                         ? $conversation->customer
                         : $conversation->provider;
+
+                    // If your controller sends an $activeConversation, we can highlight it
                     $active = isset($activeConversation) && $activeConversation->id === $conversation->id;
                 @endphp
-                <a href="{{ route(auth()->user()->role . '.messages.chat', $conversation->id) }}" 
-                   class="block p-4 hover:bg-gray-700 transition 
-                          {{ $active ? 'bg-gray-700' : '' }}"
-                   @click="if(window.innerWidth < 768) showSidebar = false">
-                    <div class="flex justify-between items-center">
+
+                <a href="{{ route(auth()->user()->role . '.messages.chat', $conversation->id) }}"
+                   class="block px-5 py-4 text-sm hover:bg-blue-50 transition {{ $active ? 'bg-blue-50' : 'bg-white' }}"
+                   @click="if(window.innerWidth < 768) showSidebar = false"
+                >
+                    <div class="flex items-center justify-between">
                         <div>
-                            <p class="font-semibold text-white">
+                            <p class="font-semibold text-gray-800">
                                 {{ $otherUser->name ?? 'Unknown User' }}
                             </p>
-                            <p class="text-sm text-gray-400 truncate">
+                            <p class="text-xs text-gray-500 mt-0.5">
                                 {{ $conversation->service->name ?? 'Service' }}
                             </p>
                         </div>
-                        <span class="text-xs text-gray-500">
+                        <span class="text-[11px] text-gray-400 whitespace-nowrap">
                             {{ optional($conversation->messages->last())->created_at?->diffForHumans() ?? '' }}
                         </span>
                     </div>
                 </a>
             @empty
-                <div class="p-4 text-gray-400 text-center">No conversations yet.</div>
+                <div class="px-5 py-6 text-center text-sm text-gray-500">
+                    No conversations yet.
+                </div>
             @endforelse
         </div>
     </div>
 
-    {{-- MAIN CHAT PANEL --}}
-    <div class="flex-1 flex flex-col bg-gray-900">
-        @isset($activeConversation)
-            {{-- HEADER --}}
-            <div class="flex items-center justify-between p-4 bg-gray-800 border-b border-gray-700 flex-shrink-0">
-                <div class="flex items-center gap-2">
-                    <button @click="showSidebar = true" class="md:hidden text-orange-400 hover:text-orange-300">←</button>
-                    <h2 class="text-lg font-semibold text-orange-400 truncate">
-                        {{ auth()->id() === $activeConversation->customer_id 
-                            ? $activeConversation->provider->name 
-                            : $activeConversation->customer->name }}
-                    </h2>
-                </div>
-                <span class="text-gray-400 text-sm truncate">
-                    {{ $activeConversation->service->name ?? '' }}
-                </span>
-            </div>
-
-            {{-- MESSAGES --}}
-            <div id="chat-box" class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-gray-900">
-                @forelse($messages as $msg)
-                    <div class="mb-3 flex {{ $msg->sender_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
-                        <div class="max-w-[70%] px-4 py-2 rounded-2xl 
-                            {{ $msg->sender_id === auth()->id() 
-                                ? 'bg-orange-500 text-white' 
-                                : 'bg-gray-700 text-gray-100' }}">
-                            <p class="whitespace-pre-line">{{ $msg->message }}</p>
-                            <small class="block text-xs text-gray-300 mt-1 text-right">
-                                {{ $msg->created_at->diffForHumans() }}
-                            </small>
-                        </div>
-                    </div>
-                @empty
-                    <p class="text-gray-400 text-center mt-10">No messages yet. Start chatting below!</p>
-                @endforelse
-            </div>
-
-            {{-- INPUT --}}
-            <form action="{{ route(auth()->user()->role . '.messages.send', $activeConversation->id) }}" 
-                  method="POST" 
-                  class="p-4 bg-gray-800 border-t border-gray-700 flex gap-2 flex-shrink-0">
-                @csrf
-                <input type="text" name="message" required 
-                       class="flex-1 px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                       placeholder="Type a message...">
-                <button type="submit" 
-                        class="bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg font-semibold">
-                    Send
-                </button>
-            </form>
-        @else
-            <div class="flex items-center justify-center flex-1 text-gray-500 text-center p-10">
-                Select a conversation to start chatting.
-            </div>
-        @endisset
+    {{-- RIGHT: EMPTY STATE / HINT --}}
+    <div class="hidden md:flex flex-1 items-center justify-center text-gray-400 text-sm">
+        Select a conversation to start chatting.
     </div>
+
+    {{-- Mobile toggle button (only visible when sidebar hidden) --}}
+    <button 
+        @click="showSidebar = true"
+        class="fixed bottom-6 right-6 md:hidden inline-flex items-center gap-2 px-4 py-2 rounded-full shadow-md bg-blue-600 text-white text-sm"
+        x-show="!showSidebar"
+    >
+        <i class="bi bi-chat-dots"></i>
+        <span>Chats</span>
+    </button>
 </div>
 
-{{-- FIX LAYOUT GAPS --}}
-<style>
-main {
-    padding: 0 !important;
-    margin: 0 !important;
-}
-.custom-scrollbar::-webkit-scrollbar { width: 8px; }
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #444;
-    border-radius: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: #666;
-}
-</style>
-
-{{-- SCRIPTS --}}
+{{-- Alpine --}}
 <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const chatBox = document.getElementById('chat-box');
-    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
-});
-</script>
 @endsection

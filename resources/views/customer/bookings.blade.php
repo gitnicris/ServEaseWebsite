@@ -3,11 +3,11 @@
 @section('title', 'My Bookings | ServEase')
 
 @section('content')
-<div class="min-h-screen w-full bg-gradient-to-br from-violet-50 via-white to-orange-50 p-6 lg:p-10 rounded-2xl shadow-md">
+<div class="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-orange-50 p-6 lg:p-10 rounded-2xl shadow-md">
     <!-- 🌈 Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-10">
         <div>
-            <h1 class="text-4xl font-extrabold text-violet-700 mb-2">
+            <h1 class="text-4xl font-extrabold text-blue-700 mb-2">
                 My Bookings 📅
             </h1>
             <p class="text-gray-500">Manage and track all your booked services here.</p>
@@ -24,7 +24,7 @@
             <p class="text-gray-600 text-center py-8 text-lg">You don’t have any bookings yet.</p>
         @else
             <table class="min-w-full border-collapse text-sm text-gray-700">
-                <thead class="bg-violet-600 text-white uppercase text-xs">
+                <thead class="bg-blue-600 text-white uppercase text-xs">
                     <tr>
                         <th class="py-3 px-4 text-left rounded-tl-lg">Service</th>
                         <th class="py-3 px-4 text-left">Provider</th>

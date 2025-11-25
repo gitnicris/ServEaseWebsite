@@ -15,25 +15,18 @@ class MessageSent implements ShouldBroadcast
 
     public $message;
 
-    /**
-     * Create a new event instance.
-     */
     public function __construct(Message $message)
     {
         $this->message = $message->load('sender');
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     */
     public function broadcastOn()
-    {
-        return new PrivateChannel('booking.' . $this->message->booking_id);
-    }
+{
+    // match routes/channels.php and your JS: "booking.{bookingId}"
+    return new PrivateChannel('booking.' . $this->message->booking_id);
+}
 
-    /**
-     * Customize broadcast payload
-     */
+
     public function broadcastWith()
     {
         return [
