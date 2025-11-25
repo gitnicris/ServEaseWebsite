@@ -592,12 +592,12 @@
             layout.classList.toggle('sidebar-collapsed');
         });
 
-        // mobile open
+    
         burger?.addEventListener('click', () => {
             layout.classList.add('sidebar-open-mobile');
         });
 
-        // mobile close
+     
         overlay?.addEventListener('click', () => {
             layout.classList.remove('sidebar-open-mobile');
         });
