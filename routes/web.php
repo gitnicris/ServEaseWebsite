@@ -26,6 +26,8 @@ Route::controller(PageController::class)->group(function () {
 
 Route::get('/services', [ServiceController::class, 'browse'])->name('services.index');
 Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
+// Public service search
+Route::get('/services/search', [ServiceController::class, 'search'])->name('services.search');
 
 
 

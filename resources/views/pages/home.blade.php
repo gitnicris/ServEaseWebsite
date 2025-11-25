@@ -10,10 +10,13 @@
         <h1 class="text-3xl font-bold mb-1">Find Reliable Service Providers Near You</h1>
         <p class="text-sm opacity-90">From repairs to personal care — ServEase connects you with trusted experts.</p>
 
-        <form action="{{ route('services.index') }}" method="GET" class="flex gap-2 mt-4">
+        {{-- SEARCH FORM --}}
+        <form action="{{ route('services.search') }}" method="GET" class="flex gap-2 mt-4">
             <input type="text" name="search"
+                   value="{{ request('search') }}"
                    placeholder="Search for services (e.g., electrician, plumbing, cleaning...)"
-                   class="flex-1 px-3 py-2 rounded-lg text-gray-800 border border-gray-300 focus:outline-none">
+                   class="flex-1 px-3 py-2 rounded-lg text-gray-800 border border-gray-300 focus:ring-blue-500 focus:border-blue-500">
+
             <button class="px-4 py-2 bg-white text-blue-700 font-semibold rounded-lg hover:bg-gray-100">
                 Search
             </button>
@@ -36,7 +39,7 @@
         @endphp
 
         @foreach($categories as $cat)
-            <a href="{{ route('services.index') }}?category={{ urlencode($cat['label']) }}"
+            <a href="{{ route('services.search') }}?category={{ urlencode($cat['label']) }}"
                class="p-4 bg-white shadow rounded-lg border hover:shadow-md transition flex flex-col items-center">
                 <i class="bi bi-{{ $cat['icon'] }} text-3xl mb-2 text-blue-600"></i>
                 <span class="font-medium">{{ $cat['label'] }}</span>
@@ -51,20 +54,22 @@
 
     @php
         $providers = \App\Models\User::where('role','provider')
-                     ->with('providerProfile.reviews')
+                     ->with(['providerProfile.reviews'])
                      ->limit(4)
                      ->get();
     @endphp
 
     @if ($providers->count() > 0)
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
             @foreach ($providers as $provider)
                 @php
                     $profile = $provider->providerProfile;
                     $rating = round($profile?->reviews->avg('rating') ?? 0, 1);
                 @endphp
 
-                <a href="{{ route('services.show', $provider->id) }}"
+                {{-- Updated link to provider profile page --}}
+                <a href="{{ route('provider.profile', $provider->id) }}"
                    class="bg-white p-4 rounded-lg border shadow hover:shadow-md transition flex gap-4">
 
                     <img src="{{ $profile->photo ?? 'https://ui-avatars.com/api/?name='.urlencode($provider->name) }}"
@@ -84,6 +89,7 @@
 
                 </a>
             @endforeach
+
         </div>
     @else
         <p class="text-gray-600">No providers available yet.</p>

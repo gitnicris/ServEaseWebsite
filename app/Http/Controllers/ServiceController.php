@@ -9,24 +9,43 @@ use Illuminate\Support\Facades\Storage;
 
 class ServiceController extends Controller
 {
-    // 📋 Provider: View their own services (regardless of status)
+    // 📋 Provider: View their own services
     public function index()
     {
         $services = Service::where('user_id', Auth::id())->latest()->get();
         return view('provider.services', compact('services'));
     }
 
-    // 🌍 Public / Customer: Only show approved services
-    public function browse()
+    // 🌍 PUBLIC: Browse with filters
+    public function browse(Request $request)
     {
-        $services = Service::where('status', 'approved')
-            ->latest()
-            ->get();
+        $search = $request->input('search');
+        $category = $request->input('category');
 
-        return view('pages.services', compact('services'));
+        $query = Service::with('provider')->where('status', 'approved');
+
+        // 🔍 SEARCH filter
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'LIKE', "%{$search}%")
+                  ->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // 🏷 CATEGORY filter
+        if ($category) {
+            $query->where('category', $category);
+        }
+
+        $services = $query->latest()->get();
+
+        // 📌 Load all category names for dropdown
+        $categories = Service::distinct()->pluck('category');
+
+        return view('pages.services', compact('services', 'categories', 'search', 'category'));
     }
 
-    // ➕ Provider: Create new service → automatically pending
+    // ➕ Provider: Create new service
     public function store(Request $request)
     {
         $request->validate([
@@ -39,7 +58,7 @@ class ServiceController extends Controller
 
         $data = $request->only(['title', 'description', 'price', 'category']);
         $data['user_id'] = Auth::id();
-        $data['status'] = 'pending'; // 🕒 Waiting for admin approval
+        $data['status'] = 'pending';
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('services', 'public');
@@ -51,14 +70,14 @@ class ServiceController extends Controller
             ->with('success', 'Your service has been submitted for admin approval.');
     }
 
-    // ✏️ Provider: Edit service (requires re-approval)
+    // ✏ Provider: Edit service
     public function edit(Service $service)
     {
         if ($service->user_id !== Auth::id()) abort(403);
         return view('provider.edit-service', compact('service'));
     }
 
-    // 💾 Update service and mark as pending again
+    // 💾 Update service
     public function update(Request $request, Service $service)
     {
         if ($service->user_id !== Auth::id()) abort(403);
@@ -72,7 +91,7 @@ class ServiceController extends Controller
         ]);
 
         $data = $request->only(['title', 'description', 'price', 'category']);
-        $data['status'] = 'pending'; // 🔄 Must be reapproved after editing
+        $data['status'] = 'pending';
 
         if ($request->hasFile('image')) {
             if ($service->image && Storage::disk('public')->exists($service->image)) {
@@ -87,7 +106,7 @@ class ServiceController extends Controller
             ->with('success', 'Service updated and sent for re-approval.');
     }
 
-    // ❌ Delete service (only owner can)
+    // ❌ Delete service
     public function destroy(Service $service)
     {
         if ($service->user_id !== Auth::id()) abort(403);
@@ -101,21 +120,19 @@ class ServiceController extends Controller
         return redirect()->route('provider.services')
             ->with('success', 'Service deleted successfully.');
     }
+
+    // 👀 PUBLIC: Show single service
     public function show(Service $service)
-{
-    if ($service->status !== 'approved') {
-        abort(404);
+    {
+        if ($service->status !== 'approved') {
+            abort(404);
+        }
+
+        $service->load([
+            'provider.providerProfile',
+            'reviews.customer',
+        ]);
+
+        return view('pages.service-show', compact('service'));
     }
-
-    $service->load([
-        'provider.providerProfile', // ✅ this is a real relationship
-        'reviews.customer',
-    ]);
-
-    return view('pages.service-show', compact('service'));
-}
-
-
-
-
 }

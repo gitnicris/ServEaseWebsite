@@ -6,6 +6,8 @@ use App\Models\Booking;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Events\MessageSent;
+use Illuminate\Http\JsonResponse;
 
 class MessageController extends Controller
 {
@@ -66,29 +68,71 @@ class MessageController extends Controller
      * Send a message between customer and provider
      */
     public function send(Request $request, $bookingId)
-    {
-        $request->validate([
-            'message' => 'required|string|max:1000',
-        ]);
+{
+    $request->validate([
+        'message' => 'required|string|max:1000',
+    ]);
 
-        $booking = Booking::findOrFail($bookingId);
+    $booking = Booking::findOrFail($bookingId);
 
-        // Ensure the sender is either the customer or provider in this booking
-        if (Auth::id() !== $booking->customer_id && Auth::id() !== $booking->provider_id) {
-            abort(403, 'Unauthorized sender.');
-        }
-
-        $receiverId = Auth::id() === $booking->customer_id
-            ? $booking->provider_id
-            : $booking->customer_id;
-
-        Message::create([
-            'booking_id' => $booking->id,
-            'sender_id' => Auth::id(),
-            'receiver_id' => $receiverId,
-            'message' => $request->message,
-        ]);
-
-        return redirect()->back()->with('success', 'Message sent successfully!');
+    if (Auth::id() !== $booking->customer_id && Auth::id() !== $booking->provider_id) {
+        abort(403, 'Unauthorized sender.');
     }
+
+    $receiverId = Auth::id() === $booking->customer_id ? $booking->provider_id : $booking->customer_id;
+
+    $message = Message::create([
+        'booking_id' => $booking->id,
+        'sender_id' => Auth::id(),
+        'receiver_id' => $receiverId,
+        'message' => $request->message,
+    ]);
+
+    // Broadcast
+    broadcast(new MessageSent($message))->toOthers();
+
+    // If AJAX (fetch/axios), return JSON — else redirect back (keeps compatibility)
+    if ($request->expectsJson() || $request->ajax()) {
+        return response()->json([
+            'status' => 'ok',
+            'message' => [
+                'id' => $message->id,
+                'sender_id' => $message->sender_id,
+                'sender_name' => $message->sender->name ?? null,
+                'message' => $message->message,
+                'created_at' => $message->created_at->toDateTimeString(),
+            ]
+        ]);
+    }
+
+    return redirect()->back()->with('success', 'Message sent successfully!');
+}
+
+/**
+ * Return messages as JSON — used by AJAX polling fallback and initial fetch for chat index when needed
+ */
+public function fetchMessages($bookingId)
+{
+    $user = Auth::user();
+    $booking = Booking::findOrFail($bookingId);
+
+    if ($user->id !== $booking->customer_id && $user->id !== $booking->provider_id) {
+        abort(403);
+    }
+
+    $messages = Message::where('booking_id', $bookingId)
+                ->orderBy('created_at', 'asc')
+                ->get()
+                ->map(function($m) {
+                    return [
+                        'id' => $m->id,
+                        'sender_id' => $m->sender_id,
+                        'sender_name' => $m->sender->name ?? null,
+                        'message' => $m->message,
+                        'created_at' => $m->created_at->toDateTimeString(),
+                    ];
+                });
+
+    return response()->json($messages);
+}
 }
