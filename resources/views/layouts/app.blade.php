@@ -195,6 +195,41 @@
             padding: 0.55rem 0.85rem;
             font-size: 0.9rem;
         }
+        .sidebar-logout-btn {
+    width: 100%;
+    border-radius: 0.9rem;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+/* Collapsed state: make logout a small floating square button */
+.sidebar-collapsed .sidebar-footer {
+    display: flex;
+    justify-content: center;
+}
+
+.sidebar-collapsed .sidebar-logout-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 1rem;
+    padding: 0;
+    font-size: 0;
+}
+
+/* hide text when collapsed, keep icon centered */
+.sidebar-collapsed .sidebar-logout-text {
+    display: none;
+}
+
+.sidebar-collapsed .sidebar-logout-btn i {
+    font-size: 1.1rem;
+    margin: 0; /* remove bootstrap me-1 spacing */
+}
+
 
         /* MOBILE SIDEBAR (slide in/out) */
         @media (max-width: 768px) {
@@ -431,7 +466,7 @@
                 <i class="bi bi-chevron-left"></i>
             </button>
         </div>
-
+        
         @auth
             <div>
                 <div class="sidebar-section-label">Navigation</div>
@@ -516,8 +551,10 @@
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
                     <button class="btn btn-outline-danger sidebar-logout-btn">
-                        <i class="bi bi-box-arrow-right me-1"></i> Logout
+                     <i class="bi bi-box-arrow-right me-1"></i>
+                    <span class="sidebar-logout-text">Logout</span>
                     </button>
+
                 </form>
             </div>
         @endauth
