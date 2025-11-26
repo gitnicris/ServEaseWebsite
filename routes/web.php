@@ -84,7 +84,7 @@ Route::middleware(['auth', 'role:provider'])
 
         // Bookings
         Route::get('/bookings', [ProviderController::class, 'bookings'])->name('bookings');
-        Route::get('/bookings/pending', [ProviderController::class, 'pendingBookings'])->name('bookings.pending');
+        Route::get('/bookings/pending', [ProviderController::class, 'pendingBookings'])->name('pending');
 
         Route::post('/bookings/{booking}/approve', [ProviderController::class, 'approveBooking'])->name('bookings.approve');
         Route::post('/bookings/{booking}/reject', [ProviderController::class, 'rejectBooking'])->name('bookings.reject');
