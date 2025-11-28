@@ -21,7 +21,7 @@
         </ul>
     </div>
 
-    <form action="{{ route('provider.updateProfile') }}" method="POST" enctype="multipart/form-data" class="space-y-4 md:space-y-6">
+    <form action="{{ route('provider.updateProfile') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
         @method('PUT')
 
@@ -73,12 +73,13 @@
 
         <!-- ABOUT & AVATAR TAB -->
         <div class="tab-content hidden animate-slide-in" id="about">
-            <div class="flex flex-col md:flex-row items-center gap-4 md:gap-6 mb-4">
-                <div class="relative">
+            <div class="flex flex-col md:flex-row items-center gap-6">
+                <!-- Avatar -->
+                <div class="relative flex-shrink-0">
                     <img src="{{ $profile->photo ? asset('storage/' . $profile->photo) : asset('images/default-avatar.png') }}"
                          alt="Profile Photo"
                          class="w-28 h-28 md:w-32 md:h-32 rounded-full border shadow-sm object-cover">
-                    <label for="photo" class="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-1 cursor-pointer hover:bg-blue-700 transition">
+                    <label for="photo" class="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 cursor-pointer hover:bg-blue-700 transition">
                         <i class="bi bi-pencil"></i>
                     </label>
                     <input type="file" name="photo" id="photo" accept="image/*" class="hidden">
@@ -86,7 +87,9 @@
                         <p class="text-red-500 text-xs mt-1 text-center"> {{ $message }} </p>
                     @enderror
                 </div>
-                <div class="flex-1 text-center md:text-left">
+
+                <!-- About -->
+                <div class="flex-1 w-full">
                     <label class="block text-gray-700 font-medium mb-1">About</label>
                     <textarea name="about" rows="5"
                               class="w-full border {{ $errors->has('about') ? 'border-red-500' : 'border-gray-300' }} rounded-xl p-2 md:p-3 focus:ring-blue-500 focus:border-blue-500">{{ old('about', $profile->about) }}</textarea>
@@ -98,7 +101,7 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex flex-col md:flex-row justify-end gap-3 mt-2 md:mt-4">
+        <div class="flex flex-col md:flex-row justify-end gap-3 mt-4">
             <a href="{{ route('provider.profile') }}"
                class="px-5 py-2.5 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm text-center transition">
                Cancel
@@ -111,7 +114,7 @@
     </form>
 </div>
 
-<!-- Tab Script -->
+<!-- Tabs Script -->
 <script>
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -129,14 +132,12 @@
     });
 </script>
 
-<!-- Tailwind Animation -->
+<!-- Tailwind Slide Animation -->
 <style>
     @keyframes slide-in {
-        0% { opacity: 0; transform: translateY(10px); }
+        0% { opacity: 0; transform: translateY(8px); }
         100% { opacity: 1; transform: translateY(0); }
     }
-    .animate-slide-in {
-        animation: slide-in 0.3s ease-out;
-    }
+    .animate-slide-in { animation: slide-in 0.25s ease-out; }
 </style>
 @endsection

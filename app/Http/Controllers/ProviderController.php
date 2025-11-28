@@ -126,6 +126,7 @@ public function profile()
         }
 
         $profile->fill($request->only('bio', 'address', 'gmail', 'phone', 'about'));
+        $profile->name = $request->name; // Update name in profile as well
         $profile->save();
 
         $user->update(['name' => $request->name]);

@@ -6,21 +6,22 @@
 <div class="max-w-6xl mx-auto px-6 py-10 space-y-10">
 
     <!-- 🌈 Profile Header -->
-    <div class="bg-white rounded-2xl shadow-lg p-8 md:p-10 flex flex-col md:flex-row items-center justify-between">
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 flex flex-col md:flex-row items-center justify-between">
         <div class="flex items-center space-x-6">
             <div class="relative group">
-                <img src="{{ $profile->photo ? asset('storage/'.$profile->photo) : 'https://ui-avatars.com/api/?name='.urlencode($profile->name) }}"
+                <img src="{{ $profile->photo ? asset('storage/'.$profile->photo) : 'https://ui-avatars.com/api/?name='.urlencode($user->name) }}"
                      alt="Profile Photo"
                      class="w-28 h-28 rounded-full border border-gray-200 shadow-md object-cover transition-transform duration-300 group-hover:scale-105">
             </div>
 
             <div>
-                <h1 class="text-3xl font-bold text-gray-800">{{ $profile->name }}</h1>
+                <!-- Display user name from users table -->
+                <h1 class="text-3xl font-bold text-gray-800">{{ $user->name }}</h1>
                 <p class="text-gray-600 text-sm mt-1">{{ $profile->bio ?: 'No bio provided yet.' }}</p>
 
                 <!-- ⭐ Rating -->
                 <div class="flex items-center mt-3 text-yellow-400">
-                    @php $rating = $profile->review ?? 0; @endphp
+                    @php $rating = $averageRating ?? 0; @endphp
                     @for ($i = 0; $i < 5; $i++)
                         <i class="bi {{ $i < $rating ? 'bi-star-fill' : 'bi-star' }}"></i>
                     @endfor
@@ -51,10 +52,10 @@
                 <i class="bi bi-person-lines-fill text-gray-700"></i> Personal Details
             </h2>
             <div class="space-y-3 text-gray-700">
-                <p><strong>Name:</strong> {{ $profile->name }}</p>
+                <p><strong>Name:</strong> {{ $user->name }}</p>
                 <p><strong>Address:</strong> {{ $profile->address ?: 'Not provided' }}</p>
                 <p><strong>Phone:</strong> {{ $profile->phone ?: 'Not provided' }}</p>
-                <p><strong>Email:</strong> {{ $profile->gmail ?: 'Not provided' }}</p>
+                <p><strong>Email:</strong> {{ $profile->gmail ?: $user->email }}</p>
             </div>
         </div>
 
