@@ -5,30 +5,38 @@
 @section('content')
 
 {{-- HERO SECTION --}}
-<div class="mb-8">
-    <div class="p-6 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md">
-        <h1 class="text-3xl font-bold mb-1">Find Reliable Service Providers Near You</h1>
-        <p class="text-sm opacity-90">From repairs to personal care — ServEase connects you with trusted experts.</p>
+<div class="mb-4">
+    <div class="p-4 rounded-3 text-white" style="background: linear-gradient(135deg, #2563eb, #111827);">
+        <h1 class="h3 fw-bold mb-1">Find Reliable Service Providers Near You</h1>
+        <p class="small mb-3 opacity-75">
+            From repairs to personal care — ServEase connects you with trusted experts.
+        </p>
 
-        {{-- SEARCH FORM --}}
-        <form action="{{ route('services.search') }}" method="GET" class="flex gap-2 mt-4">
-            <input type="text" name="search"
-                   value="{{ request('search') }}"
-                   placeholder="Search for services (e.g., electrician, plumbing, cleaning...)"
-                   class="flex-1 px-3 py-2 rounded-lg text-gray-800 border border-gray-300 focus:ring-blue-500 focus:border-blue-500">
-
-            <button class="px-4 py-2 bg-white text-blue-700 font-semibold rounded-lg hover:bg-gray-100">
-                Search
-            </button>
+        {{-- SEARCH FORM → goes to ServiceController@browse (services.index) --}}
+        <form action="{{ route('services.index') }}" method="GET" class="row g-2">
+            <div class="col-12 col-md-9">
+                <input type="text"
+                       name="search"
+                       value="{{ request('search') }}"
+                       placeholder="Search for services (e.g., electrician, plumbing, cleaning...)"
+                       class="form-control form-control-sm rounded-pill">
+            </div>
+            <div class="col-12 col-md-3 d-grid">
+                <button class="btn btn-light btn-sm fw-semibold rounded-pill">
+                    <i class="bi bi-search me-1"></i> Search
+                </button>
+            </div>
         </form>
     </div>
 </div>
 
 {{-- POPULAR CATEGORIES --}}
-<div class="mb-10">
-    <h2 class="text-xl font-semibold mb-4">Popular Categories</h2>
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="h6 mb-0 fw-semibold">Popular Categories</h2>
+    </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="row g-3">
         @php
             $categories = [
                 ['icon' => 'tools', 'label' => 'Home Repair'],
@@ -39,18 +47,24 @@
         @endphp
 
         @foreach($categories as $cat)
-            <a href="{{ route('services.search') }}?category={{ urlencode($cat['label']) }}"
-               class="p-4 bg-white shadow rounded-lg border hover:shadow-md transition flex flex-col items-center">
-                <i class="bi bi-{{ $cat['icon'] }} text-3xl mb-2 text-blue-600"></i>
-                <span class="font-medium">{{ $cat['label'] }}</span>
-            </a>
+            <div class="col-6 col-md-3">
+                <a href="{{ route('services.index', ['category' => $cat['label']]) }}"
+                   class="text-decoration-none">
+                    <div class="border rounded-3 p-3 h-100 d-flex flex-column align-items-center justify-content-center shadow-sm bg-white hover-shadow-sm">
+                        <i class="bi bi-{{ $cat['icon'] }} fs-3 mb-2 text-primary"></i>
+                        <span class="fw-medium text-dark small text-center">{{ $cat['label'] }}</span>
+                    </div>
+                </a>
+            </div>
         @endforeach
     </div>
 </div>
 
 {{-- TOP RATED PROVIDERS --}}
-<div class="mb-12">
-    <h2 class="text-xl font-semibold mb-4">Top Rated Service Providers</h2>
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="h6 mb-0 fw-semibold">Top Rated Service Providers</h2>
+    </div>
 
     @php
         $providers = \App\Models\User::where('role','provider')
@@ -60,72 +74,78 @@
     @endphp
 
     @if ($providers->count() > 0)
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-
+        <div class="row g-3">
             @foreach ($providers as $provider)
                 @php
                     $profile = $provider->providerProfile;
                     $rating = round($profile?->reviews->avg('rating') ?? 0, 1);
                 @endphp
 
-                {{-- Updated link to provider profile page --}}
-                <a href="{{ route('provider.profile', $provider->id) }}"
-                   class="bg-white p-4 rounded-lg border shadow hover:shadow-md transition flex gap-4">
+                <div class="col-12 col-md-6 col-lg-4">
+                    <a href="{{ route('providers.public-profile', $provider->id) }}"
+                       class="text-decoration-none text-dark">
+                        <div class="border rounded-3 p-3 bg-white d-flex gap-3 align-items-center shadow-sm hover-shadow-sm">
+                            <img src="{{ $profile->photo ? asset('storage/'.$profile->photo) : 'https://ui-avatars.com/api/?name='.urlencode($provider->name) }}"
+                                 alt="Provider"
+                                 class="rounded-circle border"
+                                 style="width: 56px; height: 56px; object-fit: cover;">
 
-                    <img src="{{ $profile->photo ?? 'https://ui-avatars.com/api/?name='.urlencode($provider->name) }}"
-                         class="w-16 h-16 rounded-full object-cover border">
-
-                    <div class="flex flex-col">
-                        <h3 class="font-semibold text-lg">{{ $provider->name }}</h3>
-                        <p class="text-sm text-gray-600">
-                            {{ Str::limit($profile->bio ?? 'No description available', 55) }}
-                        </p>
-
-                        <div class="flex items-center mt-1">
-                            <i class="bi bi-star-fill text-yellow-500 text-sm"></i>
-                            <span class="ml-1 text-sm font-medium">{{ $rating }}/5</span>
+                            <div class="flex-grow-1">
+                                <h3 class="h6 fw-semibold mb-1">{{ $provider->name }}</h3>
+                                <p class="small text-muted mb-1">
+                                    {{ \Illuminate\Support\Str::limit($profile->bio ?? 'No description available', 55) }}
+                                </p>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-star-fill text-warning small"></i>
+                                    <span class="ms-1 small fw-semibold">{{ $rating }}/5</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-
-                </a>
+                    </a>
+                </div>
             @endforeach
-
         </div>
     @else
-        <p class="text-gray-600">No providers available yet.</p>
+        <p class="text-muted small mb-0">No providers available yet.</p>
     @endif
 </div>
 
 {{-- WHY CHOOSE US --}}
-<div class="mb-12">
-    <h2 class="text-xl font-semibold mb-4">Why Choose ServEase?</h2>
+<div class="mb-4">
+    <h2 class="h6 fw-semibold mb-2">Why Choose ServEase?</h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="p-4 bg-white border rounded-lg shadow text-center">
-            <i class="bi bi-shield-check text-3xl text-blue-600"></i>
-            <h4 class="font-semibold mt-2">Trusted Providers</h4>
-            <p class="text-sm text-gray-600">All providers are verified and reviewed.</p>
+    <div class="row g-3">
+        <div class="col-12 col-md-4">
+            <div class="border rounded-3 p-3 bg-white text-center h-100 shadow-sm">
+                <i class="bi bi-shield-check fs-3 text-primary mb-2"></i>
+                <h4 class="fw-semibold small mb-1">Trusted Providers</h4>
+                <p class="small text-muted mb-0">All providers are verified and reviewed.</p>
+            </div>
         </div>
 
-        <div class="p-4 bg-white border rounded-lg shadow text-center">
-            <i class="bi bi-lightning text-3xl text-blue-600"></i>
-            <h4 class="font-semibold mt-2">Fast Booking</h4>
-            <p class="text-sm text-gray-600">Book services quickly and easily.</p>
+        <div class="col-12 col-md-4">
+            <div class="border rounded-3 p-3 bg-white text-center h-100 shadow-sm">
+                <i class="bi bi-lightning fs-3 text-primary mb-2"></i>
+                <h4 class="fw-semibold small mb-1">Fast Booking</h4>
+                <p class="small text-muted mb-0">Book services quickly and easily.</p>
+            </div>
         </div>
 
-        <div class="p-4 bg-white border rounded-lg shadow text-center">
-            <i class="bi bi-chat-dots text-3xl text-blue-600"></i>
-            <h4 class="font-semibold mt-2">Direct Messaging</h4>
-            <p class="text-sm text-gray-600">Communicate directly with the provider.</p>
+        <div class="col-12 col-md-4">
+            <div class="border rounded-3 p-3 bg-white text-center h-100 shadow-sm">
+                <i class="bi bi-chat-dots fs-3 text-primary mb-2"></i>
+                <h4 class="fw-semibold small mb-1">Direct Messaging</h4>
+                <p class="small text-muted mb-0">Communicate directly with the provider.</p>
+            </div>
         </div>
     </div>
 </div>
 
 {{-- CTA --}}
-<div class="mt-8 p-6 bg-blue-600 text-white text-center rounded-xl shadow">
-    <h3 class="text-xl font-semibold">Need help? Find a provider now!</h3>
+<div class="mt-3 p-4 rounded-3 text-center text-white" style="background: #2563eb;">
+    <h3 class="h6 fw-semibold mb-2">Need help? Find a provider now!</h3>
     <a href="{{ route('services.index') }}"
-       class="mt-3 inline-block bg-white text-blue-700 px-5 py-2 rounded-lg font-semibold hover:bg-gray-100">
+       class="btn btn-light btn-sm fw-semibold rounded-pill">
         Explore Services
     </a>
 </div>

@@ -32,9 +32,19 @@
                     @endif
 
                     <div class="p-5">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                            {{ $service->title }}
-                        </h3>
+                        {{-- Top row: title + category --}}
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                {{ $service->title }}
+                            </h3>
+
+                            @if (!empty($service->category))
+                                <span
+                                    class="whitespace-nowrap bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300 text-xs font-semibold px-3 py-1 rounded-full">
+                                    {{ $service->category }}
+                                </span>
+                            @endif
+                        </div>
                         <p class="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">
                             {{ $service->description }}
                         </p>
@@ -96,6 +106,14 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Service Title</label>
                 <input type="text" name="title" required
+                    class="w-full p-3 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            </div>
+            {{-- Category --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                {{-- You can change this to a <select> if you have fixed categories --}}
+                <input type="text" name="category"
+                    placeholder="e.g. Plumbing, Cleaning, Electrical"
                     class="w-full p-3 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-orange-500 focus:outline-none">
             </div>
 
