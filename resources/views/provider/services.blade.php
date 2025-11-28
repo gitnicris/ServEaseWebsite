@@ -8,79 +8,96 @@
 
         {{-- Header --}}
         <div class="flex flex-col sm:flex-row justify-between items-center mb-8">
-            <h1 class="text-3xl font-extrabold text-gray-800 dark:text-gray-100 mb-4 sm:mb-0">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-4 sm:mb-0">
                 My Services
             </h1>
             <button id="addServiceBtn"
-                class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-all duration-200">
+                class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-5 rounded-lg shadow">
                 + Add New Service
             </button>
         </div>
 
         {{-- Services Grid --}}
-        <div class="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-8">
+        <div class="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-5">
+
             @forelse ($services as $service)
-                <div
-                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition transform hover:-translate-y-1">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
+
+                    {{-- IMAGE --}}
                     @if ($service->image)
-                        <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->title }}"
-                            class="w-full h-48 object-cover">
+                        <img src="{{ asset('storage/' . $service->image) }}"
+                            class="w-full h-32 object-cover" alt="">
                     @else
-                        <div class="w-full h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400">
+                        <div class="w-full h-32 bg-gray-100 dark:bg-gray-700 flex justify-center items-center text-gray-400">
                             No Image
                         </div>
                     @endif
 
-                    <div class="p-5">
-                        {{-- Top row: title + category --}}
-                        <div class="flex items-start justify-between gap-2 mb-2">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                {{ $service->title }}
+                    {{-- BODY --}}
+                    <div class="p-4">
+
+                        {{-- Title + Category --}}
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-tight max-w-[70%]">
+                                {{ Str::limit($service->title, 30) }}
                             </h3>
 
-                            @if (!empty($service->category))
-                                <span
-                                    class="whitespace-nowrap bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300 text-xs font-semibold px-3 py-1 rounded-full">
+                            @if ($service->category)
+                                <span class="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300
+                                            text-[10px] px-2 py-0.5 rounded-full">
                                     {{ $service->category }}
                                 </span>
                             @endif
                         </div>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">
+
+                        {{-- Description --}}
+                        <p class="text-gray-600 dark:text-gray-400 text-xs mb-2 line-clamp-2">
                             {{ $service->description }}
                         </p>
-                        <p class="font-bold text-orange-500 text-lg mb-3">
+
+                        {{-- Price --}}
+                        <p class="font-bold text-orange-500 text-sm mb-2">
                             ₱{{ number_format($service->price, 2) }}
                         </p>
 
-                        {{-- Status Badge --}}
-                        <div class="mb-4">
+                        {{-- Status --}}
+                        <div class="mb-3">
                             @if ($service->status === 'pending')
-                                <span
-                                    class="bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 text-xs px-3 py-1 rounded-full font-semibold">Pending
-                                    Approval</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-600 dark:text-yellow-400">
+                                    Pending Approval
+                                </span>
                             @elseif ($service->status === 'approved')
-                                <span
-                                    class="bg-green-500/20 text-green-600 dark:text-green-400 text-xs px-3 py-1 rounded-full font-semibold">Approved</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-green-500/20 text-green-600 dark:text-green-400">
+                                    Approved
+                                </span>
                             @elseif ($service->status === 'rejected')
-                                <span
-                                    class="bg-red-500/20 text-red-600 dark:text-red-400 text-xs px-3 py-1 rounded-full font-semibold">Rejected</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-red-500/20 text-red-600 dark:text-red-400">
+                                    Rejected
+                                </span>
                             @endif
                         </div>
 
-                        {{-- Actions --}}
-                        <div class="flex justify-end space-x-3">
+                        {{-- Buttons --}}
+                        <div class="flex justify-end gap-2">
                             <a href="{{ route('provider.services.edit', $service->id) }}"
-                                class="bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-2 rounded-lg transition">Edit</a>
+                                class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1.5 rounded">
+                                Edit
+                            </a>
+
                             <form action="{{ route('provider.services.destroy', $service->id) }}" method="POST"
-                                onsubmit="return confirm('Are you sure you want to delete this service?');">
+                                  onsubmit="return confirm('Delete this service?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    class="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-2 rounded-lg transition">Delete</button>
+                                    class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1.5 rounded">
+                                    Delete
+                                </button>
                             </form>
                         </div>
+
                     </div>
                 </div>
+
             @empty
                 <div class="col-span-full text-center py-10">
                     <p class="text-gray-500 dark:text-gray-400 text-lg">You haven’t added any services yet.</p>
@@ -90,67 +107,79 @@
     </div>
 </div>
 
-{{-- Add Service Modal --}}
+{{-- ADD SERVICE MODAL (Improved UI) --}}
 <div id="addServiceModal"
-    class="hidden fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50">
-    <div class="bg-white dark:bg-gray-900 rounded-2xl p-8 w-full max-w-lg relative shadow-2xl">
+    class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+
+    <div class="bg-white dark:bg-gray-900 rounded-xl p-6 w-full max-w-md shadow-xl relative animate-[fadeIn_.2s_ease-out]">
+
+        {{-- Close Button --}}
         <button id="closeModal"
-            class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl font-bold">
+            class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl">
             &times;
         </button>
 
-        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100 text-center">Add New Service</h2>
+        {{-- Title --}}
+        <h2 class="text-xl font-bold mb-5 text-gray-800 dark:text-gray-100 text-center">
+            Add New Service
+        </h2>
 
-        <form action="{{ route('provider.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+        <form action="{{ route('provider.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
             @csrf
+
+            {{-- Input Wrapper --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Service Title</label>
+                <label class="text-sm text-gray-700 dark:text-gray-300 font-medium">Service Title</label>
                 <input type="text" name="title" required
-                    class="w-full p-3 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-orange-500 focus:outline-none">
-            </div>
-            {{-- Category --}}
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-                {{-- You can change this to a <select> if you have fixed categories --}}
-                <input type="text" name="category"
-                    placeholder="e.g. Plumbing, Cleaning, Electrical"
-                    class="w-full p-3 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                    class="w-full mt-1 p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring focus:ring-orange-300 focus:border-orange-500 outline-none">
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                <label class="text-sm text-gray-700 dark:text-gray-300 font-medium">Category</label>
+                <input type="text" name="category" placeholder="e.g. Cleaning"
+                    class="w-full mt-1 p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring focus:ring-orange-300 focus:border-orange-500 outline-none">
+            </div>
+
+            <div>
+                <label class="text-sm text-gray-700 dark:text-gray-300 font-medium">Description</label>
                 <textarea name="description" rows="3" required
-                    class="w-full p-3 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-orange-500 focus:outline-none"></textarea>
+                    class="w-full mt-1 p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring focus:ring-orange-300 focus:border-orange-500 outline-none"></textarea>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price (₱)</label>
+                <label class="text-sm text-gray-700 dark:text-gray-300 font-medium">Price (₱)</label>
                 <input type="number" name="price" step="0.01" required
-                    class="w-full p-3 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                    class="w-full mt-1 p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring focus:ring-orange-300 focus:border-orange-500 outline-none">
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Upload Image</label>
+                <label class="text-sm text-gray-700 dark:text-gray-300 font-medium">Image</label>
                 <input type="file" name="image" accept="image/*"
-                    class="w-full p-3 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                    class="w-full mt-1 p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700">
             </div>
 
-            <div class="flex justify-end space-x-3 pt-4">
+            {{-- Buttons --}}
+            <div class="flex justify-end gap-2 pt-3">
                 <button type="button" id="cancelBtn"
-                    class="bg-gray-500 hover:bg-gray-600 text-white dark:text-gray-900 px-4 py-2 rounded-lg transition">Cancel</button>
+                    class="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 text-gray-800">
+                    Cancel
+                </button>
+
                 <button type="submit"
-                    class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg shadow-md transition">Save
-                    Service</button>
+                    class="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white shadow">
+                    Save
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-{{-- Modal Script --}}
+{{-- JS Modal --}}
 <script>
     const modal = document.getElementById('addServiceModal');
     document.getElementById('addServiceBtn').onclick = () => modal.classList.remove('hidden');
     document.getElementById('closeModal').onclick = () => modal.classList.add('hidden');
     document.getElementById('cancelBtn').onclick = () => modal.classList.add('hidden');
 </script>
+
 @endsection
