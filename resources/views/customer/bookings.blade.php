@@ -3,93 +3,79 @@
 @section('title', 'My Bookings | ServEase')
 
 @section('content')
-<div class="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-orange-50 p-6 lg:p-10 rounded-2xl shadow-md">
+<div class="w-full space-y-6">
     <!-- 🌈 Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-10">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
         <div>
-            <h1 class="text-4xl font-extrabold text-blue-700 mb-2">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-1">
                 My Bookings 📅
             </h1>
-            <p class="text-gray-500">Manage and track all your booked services here.</p>
+            <p class="text-gray-500 text-sm md:text-base">Manage and track all your booked services here.</p>
         </div>
         <a href="{{ route('customer.services') }}"
-           class="mt-4 sm:mt-0 inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl font-medium shadow-md transition">
-            <i class="bi bi-cart-fill"></i> Browse More Services
+           class="mt-3 md:mt-0 inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium text-sm transition">
+            <i class="bi bi-cart-fill"></i> Browse Services
         </a>
     </div>
 
-    <!-- 🧾 Bookings Table -->
-    <div class="bg-white/80 backdrop-blur rounded-2xl shadow-lg border border-gray-200 p-6 overflow-x-auto">
-        @if ($bookings->isEmpty())
-            <p class="text-gray-600 text-center py-8 text-lg">You don’t have any bookings yet.</p>
-        @else
-            <table class="min-w-full border-collapse text-sm text-gray-700">
-                <thead class="bg-blue-600 text-white uppercase text-xs">
-                    <tr>
-                        <th class="py-3 px-4 text-left rounded-tl-lg">Service</th>
-                        <th class="py-3 px-4 text-left">Provider</th>
-                        <th class="py-3 px-4 text-left">Date</th>
-                        <th class="py-3 px-4 text-left">Status</th>
-                        <th class="py-3 px-4 text-center rounded-tr-lg">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 bg-white">
-                    @foreach ($bookings as $booking)
-                        <tr class="hover:bg-violet-50 transition-all">
-                            <td class="py-4 px-4 font-medium text-gray-800">{{ $booking->service->title ?? 'N/A' }}</td>
-                            <td class="py-4 px-4">{{ $booking->provider->name ?? 'N/A' }}</td>
-                            <td class="py-4 px-4">{{ $booking->created_at->format('M d, Y') }}</td>
-                            <td class="py-4 px-4">
-                                @if ($booking->status === 'completed')
-                                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Completed</span>
-                                @elseif ($booking->status === 'pending')
-                                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">Pending</span>
-                                @elseif ($booking->status === 'accepted')
-                                    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">Accepted</span>
-                                @elseif ($booking->status === 'cancelled')
-                                    <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">Cancelled</span>
-                                @endif
-                            </td>
-                            <td class="py-4 px-4 text-center">
-                                @if ($booking->status === 'pending' || $booking->status === 'accepted')
-                                    <div class="flex justify-center gap-2">
-                                        @if ($booking->status === 'accepted')
-                                            <form action="{{ route('customer.bookings.complete', $booking->id) }}" method="POST" onsubmit="return confirm('Mark this booking as completed?');">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white text-xs px-4 py-2 rounded-lg shadow-md transition">
-                                                    <i class="bi bi-check2-circle"></i> Complete
-                                                </button>
-                                            </form>
-                                        @endif
-                                        <form action="{{ route('customer.bookings.cancel', $booking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white text-xs px-4 py-2 rounded-lg shadow-md transition">
-                                                <i class="bi bi-x-circle"></i> Cancel
-                                            </button>
-                                        </form>
-                                    </div>
-                                @else
-                                    <span class="text-gray-400 text-xs italic">No actions available</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        @endif
-    </div>
-</div>
+    <!-- 🧾 Bookings List -->
+    @if ($bookings->isEmpty())
+        <p class="text-gray-600 text-center py-6 text-sm md:text-base">You don’t have any bookings yet.</p>
+    @else
+        <div class="space-y-4">
+            @foreach ($bookings as $booking)
+                <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div class="flex flex-col md:flex-row md:items-center gap-3 md:gap-6 flex-1">
+                        <div>
+                            <p class="font-semibold text-gray-800">{{ $booking->service->title ?? 'N/A' }}</p>
+                            <p class="text-gray-500 text-sm">{{ $booking->provider->name ?? 'N/A' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm">Date: {{ $booking->created_at->format('M d, Y') }}</p>
+                        </div>
+                        <div>
+                            @php
+                                $statusClasses = [
+                                    'completed' => 'bg-green-100 text-green-700',
+                                    'pending' => 'bg-yellow-100 text-yellow-700',
+                                    'accepted' => 'bg-blue-100 text-blue-700',
+                                    'cancelled' => 'bg-red-100 text-red-700'
+                                ];
+                            @endphp
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold {{ $statusClasses[$booking->status] ?? 'bg-gray-100 text-gray-600' }}">
+                                {{ ucfirst($booking->status) }}
+                            </span>
+                        </div>
+                    </div>
 
-{{-- Sidebar Fix for Logout visibility --}}
-<style>
-    #sidebar {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        overflow-y: auto;
-        padding-bottom: 1rem;
-    }
-</style>
+                    <!-- Actions -->
+                    <div class="flex flex-wrap gap-2 mt-2 md:mt-0 md:justify-end">
+                        @if (in_array($booking->status, ['pending', 'accepted']))
+                            @if ($booking->status === 'accepted')
+                                <form action="{{ route('customer.bookings.complete', $booking->id) }}" method="POST" onsubmit="return confirm('Mark this booking as completed?');">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded-md transition flex items-center gap-1">
+                                        <i class="bi bi-check2-circle"></i> Complete
+                                    </button>
+                                </form>
+                            @endif
+                            <form action="{{ route('customer.bookings.cancel', $booking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded-md transition flex items-center gap-1">
+                                    <i class="bi bi-x-circle"></i> Cancel
+                                </button>
+                            </form>
+                        @else
+                            <span class="text-gray-400 text-xs italic">No actions available</span>
+                        @endif
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        
+    @endif
+</div>
 @endsection

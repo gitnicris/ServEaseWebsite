@@ -3,6 +3,17 @@
 @section('title', 'Available Services')
 
 @section('content')
+@php
+    // Preload customer bookings for all services (if logged in)
+    $customerBookings = collect();
+    if (Auth::check() && Auth::user()->role === 'customer') {
+        $customerBookings = \App\Models\Booking::where('customer_id', Auth::id())
+            ->whereIn('service_id', $services->pluck('id'))
+            ->pluck('service_id')
+            ->toArray();
+    }
+@endphp
+
 <div class="min-h-screen py-16 px-6">
     <div class="max-w-7xl mx-auto">
         <!-- Title -->
@@ -21,8 +32,11 @@
         @else
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 @foreach ($services as $service)
+                    @php
+                        $hasBooking = in_array($service->id, $customerBookings);
+                    @endphp
+
                     <div class="bg-[#2e1b32] rounded-2xl overflow-hidden shadow-lg hover:shadow-orange-500/30 transition-all duration-300 hover:scale-[1.03]">
-                        
                         <!-- Service Image -->
                         <div class="relative h-56">
                             @if($service->image && Storage::disk('public')->exists($service->image))
@@ -62,16 +76,18 @@
 
                             <!-- Buttons -->
                             <div class="flex justify-between mt-4 border-t border-gray-700 pt-4">
-    <form action="{{ route('customer.book.service', $service->id) }}" method="POST">
-    @csrf
-    <button type="submit" class="btn btn-primary">Book Now</button>
-</form>
+                                <form action="{{ route('customer.book.service', $service->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary">Book Now</button>
+                                </form>
 
-    <a href="{{ route('customer.messages.chat', $service->id) }}"
-       class="bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-2 rounded-lg transition-all">
-        <i class="fa-solid fa-message mr-2"></i> Message
-    </a>
-</div>
+                                @if($hasBooking)
+                                    <a href="{{ route('customer.messages.chat', $service->id) }}"
+                                       class="bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-2 rounded-lg transition-all">
+                                        <i class="fa-solid fa-message mr-2"></i> Message
+                                    </a>
+                                @endif
+                            </div>
 
                         </div>
                     </div>

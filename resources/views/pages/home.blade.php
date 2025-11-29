@@ -77,24 +77,24 @@
         <div class="row g-3">
             @foreach ($providers as $provider)
                 @php
-                    $profile = $provider->providerProfile;
-                    $rating = round($profile?->reviews->avg('rating') ?? 0, 1);
+                    $profile = $provider->providerProfile; 
+                    $rating = $profile?->reviews->avg('rating') ? round($profile->reviews->avg('rating'), 1) : 0;
+                    $bio = $profile?->bio ?? 'No description available';
+                    $photo = $profile?->photo ? asset('storage/'.$profile->photo) : 'https://ui-avatars.com/api/?name='.urlencode($provider->name);
                 @endphp
 
                 <div class="col-12 col-md-6 col-lg-4">
                     <a href="{{ route('providers.public-profile', $provider->id) }}"
                        class="text-decoration-none text-dark">
                         <div class="border rounded-3 p-3 bg-white d-flex gap-3 align-items-center shadow-sm hover-shadow-sm">
-                            <img src="{{ $profile->photo ? asset('storage/'.$profile->photo) : 'https://ui-avatars.com/api/?name='.urlencode($provider->name) }}"
+                            <img src="{{ $photo }}"
                                  alt="Provider"
                                  class="rounded-circle border"
                                  style="width: 56px; height: 56px; object-fit: cover;">
 
                             <div class="flex-grow-1">
                                 <h3 class="h6 fw-semibold mb-1">{{ $provider->name }}</h3>
-                                <p class="small text-muted mb-1">
-                                    {{ \Illuminate\Support\Str::limit($profile->bio ?? 'No description available', 55) }}
-                                </p>
+                                <p class="small text-muted mb-1">{{ \Illuminate\Support\Str::limit($bio, 55) }}</p>
                                 <div class="d-flex align-items-center">
                                     <i class="bi bi-star-fill text-warning small"></i>
                                     <span class="ms-1 small fw-semibold">{{ $rating }}/5</span>
@@ -109,6 +109,7 @@
         <p class="text-muted small mb-0">No providers available yet.</p>
     @endif
 </div>
+
 
 {{-- WHY CHOOSE US --}}
 <div class="mb-4">

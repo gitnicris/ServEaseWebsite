@@ -34,6 +34,12 @@
                 </div>
 
                 @if(Auth::check() && Auth::user()->role === 'customer')
+                    @php
+                        $hasBooking = \App\Models\Booking::where('customer_id', Auth::id())
+                                                         ->where('service_id', $service->id)
+                                                         ->exists();
+                    @endphp
+
                     <div class="flex flex-wrap gap-3">
                         <!-- Book Service Button -->
                         <button type="button" onclick="toggleBookingModal()"
@@ -41,11 +47,13 @@
                             <i class="bi bi-calendar-check"></i> Book This Service
                         </button>
 
-                        <!-- Message Provider -->
-                        <a href="{{ route('customer.messages.index') }}"
-                           class="bg-blue-500 hover:bg-blue-600 px-5 py-2 rounded-lg text-white font-semibold transition-all duration-200 flex items-center gap-2">
-                            <i class="bi bi-chat-dots"></i> Message Provider
-                        </a>
+                        <!-- Message Provider Button (only if booked) -->
+                        @if($hasBooking)
+                            <a href="{{ route('customer.messages.chat', $service->id) }}"
+                               class="bg-blue-500 hover:bg-blue-600 px-5 py-2 rounded-lg text-white font-semibold transition-all duration-200 flex items-center gap-2">
+                                <i class="bi bi-chat-dots"></i> Message Provider
+                            </a>
+                        @endif
                     </div>
                 @endif
             </div>
