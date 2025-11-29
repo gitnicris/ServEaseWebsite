@@ -511,13 +511,37 @@
                         </a>
 
                     @elseif ($role === 'admin')
-                        <a href="{{ route('admin.dashboard') }}"
-                           class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                            <i class="bi bi-speedometer2"></i>
-                            <span>Dashboard</span>
-                        </a>
+    <a href="{{ route('admin.dashboard') }}"
+       class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+        <i class="bi bi-speedometer2"></i>
+        <span>Dashboard</span>
+    </a>
+    <a href="{{ route('admin.services.all') }}"
+           class="sidebar-link {{ request()->routeIs('admin.services.all') ? 'active' : '' }}">
+            <i class="bi bi-check2-circle"></i>
+            <span>All Services</span>
+        </a>
 
-                    @else
+    <a href="{{ route('admin.services.pending') }}"
+       class="sidebar-link {{ request()->routeIs('admin.services.pending') ? 'active' : '' }}">
+        <i class="bi bi-hourglass-split"></i>
+        <span>Pending Services</span>
+    </a>
+
+    
+
+    <a href="{{ route('admin.providers') }}"
+       class="sidebar-link {{ request()->routeIs('admin.providers.*') ? 'active' : '' }}">
+        <i class="bi bi-people"></i>
+        <span>Service Providers</span>
+    </a>
+
+    <a href="{{ route('admin.customers') }}"
+       class="sidebar-link {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}">
+        <i class="bi bi-person"></i>
+        <span>Customers</span>
+    </a>
+                    @elseif ($role === 'customer')
                         <a href="{{ route('customer.dashboard') }}"
                            class="sidebar-link {{ request()->routeIs('customer.dashboard') ? 'active' : '' }}">
                             <i class="bi bi-speedometer2"></i>
