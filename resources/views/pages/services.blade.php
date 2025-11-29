@@ -68,8 +68,18 @@
                     <div class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
 
                         {{-- IMAGE --}}
-                        @if ($service->image && Storage::disk('public')->exists($service->image))
-                            <img src="{{ asset('storage/' . $service->image) }}" class="w-full h-40 object-cover">
+                        @php
+                            // Check for uploaded image first, then fallback to seed/sample image URL
+                            $imageUrl = null;
+                            if ($service->image && Storage::disk('public')->exists($service->image)) {
+                                $imageUrl = asset('storage/' . $service->image);
+                            } elseif (filter_var($service->image, FILTER_VALIDATE_URL)) {
+                                $imageUrl = $service->image;
+                            }
+                        @endphp
+
+                        @if($imageUrl)
+                            <img src="{{ $imageUrl }}" class="w-full h-40 object-cover">
                         @else
                             <div class="w-full h-40 bg-blue-100 flex flex-col items-center justify-center text-blue-500">
                                 <i class="bi bi-image text-3xl mb-1"></i>
