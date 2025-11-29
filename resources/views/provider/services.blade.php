@@ -104,10 +104,15 @@
                 </div>
             @endforelse
         </div>
+
+        {{-- Pagination --}}
+        <div class="mt-6">
+            {{ $services->links() }}
+        </div>
     </div>
 </div>
 
-{{-- ADD SERVICE MODAL (Improved UI) --}}
+{{-- ADD SERVICE MODAL --}}
 <div id="addServiceModal"
     class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
 
@@ -127,7 +132,7 @@
         <form action="{{ route('provider.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
             @csrf
 
-            {{-- Input Wrapper --}}
+            {{-- Input Fields --}}
             <div>
                 <label class="text-sm text-gray-700 dark:text-gray-300 font-medium">Service Title</label>
                 <input type="text" name="title" required

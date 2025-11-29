@@ -1,163 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | ServEase</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+@extends('layouts.app')
 
-    <style>
-        :root {
-            --violet: #8e44ad;
-            --orange: #f39c12;
-        }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--violet), var(--orange));
-            min-height: 100vh;
-            color: white;
-        }
-        .sidebar {
-            background: rgba(0, 0, 0, 0.55);
-            backdrop-filter: blur(12px);
-        }
-        .card {
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(12px);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .btn {
-            transition: all 0.3s ease;
-        }
-        .btn:hover {
-            transform: scale(1.05);
-        }
-        .active-link {
-            color: #f39c12;
-            font-weight: 600;
-        }
-        table {
-            border-collapse: separate;
-            border-spacing: 0 0.5rem;
-        }
-        td, th {
-            padding: 0.75rem 1rem;
-        }
-    </style>
-</head>
-<body class="flex min-h-screen animate__animated animate__fadeIn">
+@section('title', 'Admin Dashboard')
 
-    <aside class="w-64 sidebar p-6 flex flex-col justify-between">
-        <div>
-            <h2 class="text-2xl font-bold text-orange-400 mb-6">ServEase Admin</h2>
-            <nav class="space-y-3">
-                <a href="{{ route('admin.dashboard') }}" 
-                   class="block hover:text-orange-400 {{ request()->routeIs('admin.dashboard') ? 'active-link' : '' }}">🏠 Dashboard</a>
-                <a href="{{ route('admin.providers') }}" 
-                   class="block hover:text-orange-400 {{ request()->routeIs('admin.providers') ? 'active-link' : '' }}">🧑‍🔧 Providers</a>
-                <a href="{{ route('admin.customers') }}" 
-                   class="block hover:text-orange-400 {{ request()->routeIs('admin.customers') ? 'active-link' : '' }}">👥 Customers</a>
-                <a href="{{ route('admin.services.pending') }}" 
-                   class="block hover:text-orange-400 {{ request()->routeIs('admin.services.pending') ? 'active-link' : '' }}">🧾 Pending Services</a>
-                <a href="#" class="block hover:text-orange-400">⚙️ Settings</a>
-            </nav>
-        </div>
+@section('content')
+<div class="page-card mb-4">
+    <h1 class="text-2xl font-bold mb-4 flex items-center gap-2">
+        📊 Dashboard Overview
+    </h1>
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button class="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md text-white font-semibold w-full">
-                Logout
-            </button>
-        </form>
-    </aside>
-
-    <main class="flex-1 p-10 overflow-y-auto">
-        <h1 class="text-3xl font-bold mb-10 text-white">📊 Dashboard Overview</h1>
-
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="card p-6 rounded-xl shadow-lg">
-                <div class="flex items-center space-x-4">
-                    <div class="text-4xl">🧑‍🔧</div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-orange-400">Total Providers</h2>
-                        <p class="text-3xl mt-1 font-bold">{{ $providersCount ?? 0 }}</p>
-                    </div>
+    {{-- Stats --}}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {{-- Providers --}}
+        <div class="p-5 rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition">
+            <div class="flex items-center gap-4">
+                <div class="text-4xl">🧑‍🔧</div>
+                <div>
+                    <h2 class="text-sm font-semibold text-gray-600">Total Providers</h2>
+                    <p class="text-3xl font-bold text-gray-900">{{ $providersCount ?? 0 }}</p>
                 </div>
-            </div>
-
-            <div class="card p-6 rounded-xl shadow-lg">
-                <div class="flex items-center space-x-4">
-                    <div class="text-4xl">👥</div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-orange-400">Total Customers</h2>
-                        <p class="text-3xl mt-1 font-bold">{{ $customersCount ?? 0 }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card p-6 rounded-xl shadow-lg flex flex-col justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="text-4xl">🧾</div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-orange-400">Pending Services</h2>
-                        <p class="text-3xl mt-1 font-bold">{{ $pendingCount ?? 0 }}</p>
-                    </div>
-                </div>
-                <a href="{{ route('admin.services.pending') }}"
-                   class="mt-6 inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg btn text-center">
-                    Review Pending →
-                </a>
             </div>
         </div>
 
-        <!-- Recent Services Table -->
-        <div class="mt-12 card p-6 rounded-xl">
-            <h2 class="text-xl font-semibold mb-6 text-orange-400">🕒 Recent Service Posts</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
-                    <thead>
-                        <tr class="text-orange-300 border-b border-gray-400/30">
-                            <th>#</th>
-                            <th>Title</th>
-                            <th>Provider</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($recentServices ?? [] as $index => $service)
-                            <tr class="border-b border-white/10 hover:bg-white/10 transition">
-                                <td>{{ $index + 1 }}</td>
-                                <td class="font-medium">{{ $service->title }}</td>
-                                <td>{{ $service->user->name ?? 'N/A' }}</td>
-                                <td>
-                                    @if($service->status === 'approved')
-                                        <span class="bg-green-500/70 px-2 py-1 rounded text-xs text-white">Approved</span>
-                                    @elseif($service->status === 'pending')
-                                        <span class="bg-yellow-500/70 px-2 py-1 rounded text-xs text-white">Pending</span>
-                                    @else
-                                        <span class="bg-red-500/70 px-2 py-1 rounded text-xs text-white">Rejected</span>
-                                    @endif
-                                </td>
-                                <td>{{ $service->created_at->format('M d, Y') }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="py-6 text-center text-gray-300">No recent service posts</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+        {{-- Customers --}}
+        <div class="p-5 rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition">
+            <div class="flex items-center gap-4">
+                <div class="text-4xl">👥</div>
+                <div>
+                    <h2 class="text-sm font-semibold text-gray-600">Total Customers</h2>
+                    <p class="text-3xl font-bold text-gray-900">{{ $customersCount ?? 0 }}</p>
+                </div>
             </div>
         </div>
-    </main>
 
-</body>
-</html>
+        {{-- Pending Services --}}
+        <div class="p-5 rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div class="flex items-center gap-4">
+                <div class="text-4xl">🧾</div>
+                <div>
+                    <h2 class="text-sm font-semibold text-gray-600">Pending Services</h2>
+                    <p class="text-3xl font-bold text-gray-900">{{ $pendingCount ?? 0 }}</p>
+                </div>
+            </div>
+
+            <a href="{{ route('admin.services.pending') }}"
+               class="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg text-center transition">
+                Review Pending →
+            </a>
+        </div>
+
+    </div>
+</div>
+
+{{-- Recent Services Table --}}
+<div class="page-card mt-8">
+    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2 text-gray-800">
+        🕒 Recent Service Posts
+    </h2>
+
+    <div class="overflow-x-auto">
+        <table class="table-auto w-full text-sm border-collapse">
+            <thead class="bg-gray-100">
+                <tr class="text-gray-600">
+                    <th class="px-4 py-3 text-left">#</th>
+                    <th class="px-4 py-3 text-left">Title</th>
+                    <th class="px-4 py-3 text-left">Provider</th>
+                    <th class="px-4 py-3 text-left">Status</th>
+                    <th class="px-4 py-3 text-left">Date</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @forelse($recentServices ?? [] as $index => $service)
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="px-4 py-3">{{ $index + 1 }}</td>
+                        <td class="px-4 py-3 font-medium">{{ $service->title }}</td>
+                        <td class="px-4 py-3">{{ $service->user->name ?? 'N/A' }}</td>
+
+                        <td class="px-4 py-3">
+                            @if($service->status === 'approved')
+                                <span class="text-xs px-2 py-1 rounded bg-green-100 text-green-700">Approved</span>
+                            @elseif($service->status === 'pending')
+                                <span class="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-700">Pending</span>
+                            @else
+                                <span class="text-xs px-2 py-1 rounded bg-red-100 text-red-700">Rejected</span>
+                            @endif
+                        </td>
+
+                        <td class="px-4 py-3">{{ $service->created_at->format('M d, Y') }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center py-6 text-gray-500">No recent service posts</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+@endsection
+

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Service;
 use App\Models\ProviderProfile;
 use App\Models\Booking;
-use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -22,63 +21,60 @@ class ProviderController extends Controller
     {
         $user = Auth::user();
 
-        $services = Service::where('user_id', $user->id)->get();
-        $bookings = Booking::whereHas('service', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })->get();
+        // Use counts instead of loading full collections
+        $totalServices = Service::where('user_id', $user->id)->count();
+        $totalBookings = Booking::whereHas('service', fn($q) => $q->where('user_id', $user->id))->count();
+        $totalEarnings = Booking::whereHas('service', fn($q) => $q->where('user_id', $user->id))
+                                ->where('status', 'completed')
+                                ->sum('price');
 
-        return view('provider.dashboard', [
-            'user' => $user,
-            'totalServices' => $services->count(),
-            'totalBookings' => $bookings->count(),
-            'totalEarnings' => $bookings->where('status', 'completed')->sum('price'),
-            'recentServices' => $services->take(5)
-        ]);
+        // Get only 5 recent services
+        $recentServices = Service::where('user_id', $user->id)->latest()->take(5)->get();
+
+        return view('provider.dashboard', compact(
+            'user', 'totalServices', 'totalBookings', 'totalEarnings', 'recentServices'
+        ));
     }
 
     // 🛠️ My Services
     public function services()
     {
-        $services = Service::where('user_id', Auth::id())->latest()->get();
+        $services = Service::where('user_id', Auth::id())->latest()->paginate(10); // paginate to save memory
         return view('provider.services', compact('services'));
     }
 
     // 👤 Profile
-public function profile()
-{
-    $user = Auth::user();
+    public function profile()
+    {
+        $user = Auth::user();
 
-    // Create profile if it doesn't exist
-    $profile = ProviderProfile::firstOrCreate(
-        ['user_id' => $user->id],
-        [
-            'name'    => $user->name,
-            'bio'     => '',
-            'address' => '',
-            'gmail'   => $user->email ?? '',
-            'phone'   => '',
-            'photo'   => null,
-            'about'   => '',
-        ]
-    );
+        $profile = ProviderProfile::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'name'    => $user->name,
+                'bio'     => '',
+                'address' => '',
+                'gmail'   => $user->email ?? '',
+                'phone'   => '',
+                'photo'   => null,
+                'about'   => '',
+            ]
+        );
 
-    // ✅ Load reviews via the relation on ProviderProfile
-    // Make sure ProviderProfile has: public function reviews() { ... }
-    $profile->load(['reviews.customer']);
+        // Paginate reviews to reduce memory usage
+        $reviews = $profile->reviews()->with('customer:id,name')->latest()->paginate(10);
 
-    // Use the loaded relation for average rating
-    $averageRating = round($profile->reviews->avg('rating') ?? 0, 1);
+        $averageRating = round($profile->reviews()->avg('rating') ?? 0, 1);
 
-    return view('provider.profile', [
-        'user'          => $user,
-        'profile'       => $profile,
-        'averageRating' => $averageRating,
-    ]);
-}
+        return view('provider.profile', [
+            'user'          => $user,
+            'profile'       => $profile,
+            'reviews'       => $reviews,
+            'averageRating' => $averageRating,
+        ]);
+    }
 
-
-
-    // ✏️ Edit Provider Profile
+    // ✏️ Edit Profile
     public function editProfile()
     {
         $user = Auth::user();
@@ -98,7 +94,7 @@ public function profile()
         return view('provider.edit-profile', compact('user', 'profile'));
     }
 
-    // 💾 Update Provider Profile
+    // 💾 Update Profile
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
@@ -115,18 +111,15 @@ public function profile()
 
         $profile = ProviderProfile::firstOrCreate(['user_id' => $user->id]);
 
-        // Handle profile photo upload
         if ($request->hasFile('photo')) {
             if ($profile->photo && Storage::disk('public')->exists($profile->photo)) {
                 Storage::disk('public')->delete($profile->photo);
             }
-
-            $path = $request->file('photo')->store('provider_photos', 'public');
-            $profile->photo = $path;
+            $profile->photo = $request->file('photo')->store('provider_photos', 'public');
         }
 
         $profile->fill($request->only('bio', 'address', 'gmail', 'phone', 'about'));
-        $profile->name = $request->name; // Update name in profile as well
+        $profile->name = $request->name;
         $profile->save();
 
         $user->update(['name' => $request->name]);
@@ -134,7 +127,7 @@ public function profile()
         return redirect()->route('provider.profile')->with('success', 'Profile updated successfully!');
     }
 
-    // 🟢 Store New Service
+    // 🟢 Store Service
     public function store(Request $request)
     {
         $request->validate([
@@ -155,9 +148,7 @@ public function profile()
 
         Service::create($data);
 
-        return redirect()
-            ->route('provider.services')
-            ->with('success', 'Service submitted successfully! Awaiting admin approval.');
+        return redirect()->route('provider.services')->with('success', 'Service submitted successfully! Awaiting admin approval.');
     }
 
     // ✏️ Edit Service
@@ -220,7 +211,7 @@ public function profile()
             ->whereHas('service', fn($q) => $q->where('user_id', Auth::id()))
             ->with(['service', 'customer'])
             ->latest()
-            ->get();
+            ->paginate(10); // paginate to reduce memory
 
         $approvedCount = Booking::where('status', 'accepted')
             ->whereHas('service', fn($q) => $q->where('user_id', Auth::id()))
@@ -239,7 +230,7 @@ public function profile()
         $bookings = Booking::whereHas('service', fn($q) => $q->where('user_id', Auth::id()))
             ->with(['service', 'customer'])
             ->latest()
-            ->get();
+            ->paginate(10); // paginate here as well
 
         return view('provider.bookings', compact('bookings'));
     }
@@ -247,22 +238,14 @@ public function profile()
     // ✅ Approve Booking
     public function approveBooking(Booking $booking)
     {
-        try {
-            $booking->update(['status' => 'accepted']);
-            return redirect()->route('provider.pending')->with('success', '✅ Booking approved successfully!');
-        } catch (\Exception $e) {
-            return redirect()->route('provider.pending')->with('error', 'Failed to approve booking.');
-        }
+        $booking->update(['status' => 'accepted']);
+        return redirect()->route('provider.pending')->with('success', '✅ Booking approved successfully!');
     }
 
     // ❌ Reject Booking
     public function rejectBooking(Booking $booking)
     {
-        try {
-            $booking->update(['status' => 'cancelled']);
-            return redirect()->route('provider.pending')->with('error', '❌ Booking rejected.');
-        } catch (\Exception $e) {
-            return redirect()->route('provider.pending')->with('error', 'Failed to reject booking.');
-        }
+        $booking->update(['status' => 'cancelled']);
+        return redirect()->route('provider.pending')->with('error', '❌ Booking rejected.');
     }
 }

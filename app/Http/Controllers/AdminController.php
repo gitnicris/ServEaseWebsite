@@ -75,6 +75,24 @@ class AdminController extends Controller
             return back()->with('error', 'Failed to reject service.');
         }
     }
+    public function allServices()
+{
+    $approvedServices = Service::where('status', 'approved')
+        ->with('user')
+        ->latest()
+        ->paginate(10);
+
+    $rejectedServices = Service::where('status', 'rejected')
+        ->with('user')
+        ->latest()
+        ->paginate(10);
+
+    return view('admin.services.index', compact(
+        'approvedServices',
+        'rejectedServices'
+    ));
+}
+
 
     
     public function providers()

@@ -15,7 +15,6 @@
             </div>
 
             <div>
-                <!-- Display user name from users table -->
                 <h1 class="text-3xl font-bold text-gray-800">{{ $user->name }}</h1>
                 <p class="text-gray-600 text-sm mt-1">{{ $profile->bio ?: 'No bio provided yet.' }}</p>
 
@@ -79,13 +78,13 @@
         <div class="mb-6">
             <p class="text-gray-700 text-lg">
                 ⭐ <span class="text-yellow-400 font-semibold">{{ $averageRating ?? 0 }}/5</span> average rating 
-                ({{ $profile->reviews->count() }} {{ Str::plural('review', $profile->reviews->count()) }})
+                ({{ $reviews->total() }} {{ Str::plural('review', $reviews->total()) }})
             </p>
         </div>
 
-        @if($profile->reviews->count() > 0)
+        @if($reviews->count() > 0)
             <div class="space-y-5">
-                @foreach($profile->reviews as $review)
+                @foreach($reviews as $review)
                     <div class="bg-gray-50 border border-gray-200 p-4 rounded-xl">
                         <div class="flex items-center justify-between">
                             <div>
@@ -101,6 +100,11 @@
                         <p class="mt-3 text-gray-700">{{ $review->comment }}</p>
                     </div>
                 @endforeach
+            </div>
+
+            <!-- Pagination Links -->
+            <div class="mt-6">
+                {{ $reviews->links() }}
             </div>
         @else
             <p class="text-gray-500 italic">No reviews yet.</p>

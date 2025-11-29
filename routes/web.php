@@ -47,6 +47,7 @@ Route::middleware(['auth', 'role:admin'])
 
         // Service Approvals
         Route::get('/services/pending', [AdminController::class, 'pendingServices'])->name('services.pending');
+        Route::get('/services', [AdminController::class, 'allServices'])->name('services.all');
         Route::post('/services/{service}/approve', [AdminController::class, 'approveService'])->name('services.approve');
         Route::post('/services/{service}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
 
@@ -57,6 +58,7 @@ Route::middleware(['auth', 'role:admin'])
         // Customers
         Route::get('/customers', [AdminController::class, 'customers'])->name('customers');
         Route::get('/customers/{customer}', [AdminController::class, 'viewCustomer'])->name('customers.view');
+        
     });
 
 /*

@@ -1,142 +1,99 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pending Services | ServEase Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+@extends('layouts.app')
 
-    <style>
-        :root {
-            --violet: #8e44ad;
-            --orange: #f39c12;
-        }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--violet), var(--orange));
-            min-height: 100vh;
-            color: white;
-        }
-        .sidebar {
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-        }
-        .card {
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .action-btn {
-            transition: transform 0.2s ease;
-        }
-        .action-btn:hover {
-            transform: scale(1.05);
-        }
-    </style>
-</head>
-<body class="flex min-h-screen animate__animated animate__fadeIn">
+@section('title', 'Pending Services')
 
-    <!-- Sidebar -->
-    <aside class="w-64 sidebar p-6 flex flex-col justify-between">
-        <div>
-            <h2 class="text-2xl font-bold text-orange-400 mb-6">ServEase Admin</h2>
-            <nav class="space-y-3">
-                <a href="{{ route('admin.dashboard') }}" class="block hover:text-orange-400">🏠 Dashboard</a>
-                <a href="{{ route('admin.services.pending') }}" class="block hover:text-orange-400 text-orange-300 font-semibold">🧾 Pending Services</a>
-            </nav>
-        </div>
+@section('content')
+<div class="flex flex-col sm:flex-row justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">Pending Services</h1>
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button class="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md text-white font-semibold w-full">
-                Logout
-            </button>
-        </form>
-    </aside>
+    <div class="text-sm text-gray-600 mt-3 sm:mt-0">
+        Approved: <span class="text-green-600 font-semibold">{{ $approvedCount }}</span> | 
+        Rejected: <span class="text-red-600 font-semibold">{{ $rejectedCount }}</span>
+    </div>
+</div>
 
-    <!-- Main Content -->
-    <main class="flex-1 p-8 overflow-x-auto">
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-8">
-            <h1 class="text-3xl font-bold">Pending Services</h1>
-            <div class="text-sm text-gray-200 mt-3 sm:mt-0">
-                Approved: <span class="text-green-400 font-semibold">{{ $approvedCount }}</span> | 
-                Rejected: <span class="text-red-400 font-semibold">{{ $rejectedCount }}</span>
-            </div>
-        </div>
+{{-- Alerts --}}
+@if (session('success'))
+    <div class="bg-green-500 text-white px-4 py-2 rounded mb-4 shadow">
+        {{ session('success') }}
+    </div>
+@endif
 
-        <!-- Alerts -->
-        @if (session('success'))
-            <div class="bg-green-500 text-white px-4 py-2 rounded mb-4 animate__animated animate__fadeInDown">
-                {{ session('success') }}
-            </div>
-        @endif
-        @if (session('error'))
-            <div class="bg-red-500 text-white px-4 py-2 rounded mb-4 animate__animated animate__fadeInDown">
-                {{ session('error') }}
-            </div>
-        @endif
+@if (session('error'))
+    <div class="bg-red-500 text-white px-4 py-2 rounded mb-4 shadow">
+        {{ session('error') }}
+    </div>
+@endif
 
-        <!-- Pending List -->
-        @if ($pendingServices->isEmpty())
-            <p class="text-center text-gray-200 mt-10">🎉 No pending services at the moment!</p>
-        @else
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
-                    <thead>
-                        <tr class="border-b border-gray-400/30 text-gray-200 uppercase text-xs tracking-wider">
-                            <th class="py-3 px-2">#</th>
-                            <th class="py-3 px-2">Preview</th>
-                            <th class="py-3 px-2">Service Title</th>
-                            <th class="py-3 px-2">Provider</th>
-                            <th class="py-3 px-2">Price</th>
-                            <th class="py-3 px-2">Category</th>
-                            <th class="py-3 px-2">Description</th>
-                            <th class="py-3 px-2 text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($pendingServices as $index => $service)
-                            <tr class="border-b border-gray-400/20 hover:bg-white/10 transition">
-                                <td class="py-3 px-2">{{ $index + 1 }}</td>
-                                <td class="py-3 px-2">
-                                    @if ($service->image)
-                                        <img src="{{ asset('storage/' . $service->image) }}" class="w-14 h-14 object-cover rounded-md border border-white/30">
-                                    @else
-                                        <span class="text-gray-400 italic">No Image</span>
-                                    @endif
-                                </td>
-                                <td class="py-3 px-2 font-semibold">{{ $service->title }}</td>
-                                <td class="py-3 px-2">{{ $service->user->name ?? 'N/A' }}</td>
-                                <td class="py-3 px-2">₱{{ number_format($service->price, 2) }}</td>
-                                <td class="py-3 px-2">{{ $service->category ?? '—' }}</td>
-                                <td class="py-3 px-2 text-gray-300 w-64 truncate">
-                                    {{ Str::limit($service->description, 60) }}
-                                </td>
-                                <td class="py-3 px-2 text-center space-x-2">
-                                    <form method="POST" action="{{ route('admin.services.approve', $service->id) }}" class="inline">
-                                        @csrf
-                                        <button type="submit" class="action-btn bg-green-500 hover:bg-green-600 px-3 py-1 rounded text-white text-xs font-medium">
-                                            ✅ Approve
-                                        </button>
-                                    </form>
-                                    <form method="POST" action="{{ route('admin.services.reject', $service->id) }}" class="inline">
-                                        @csrf
-                                        <button type="submit" class="action-btn bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-white text-xs font-medium">
-                                            ❌ Reject
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endif
-    </main>
-</body>
-</html>
+{{-- Pending List --}}
+@if ($pendingServices->isEmpty())
+    <p class="text-center text-gray-600 mt-10 italic">
+        🎉 No pending services at the moment!
+    </p>
+@else
+<div class="bg-white rounded-xl shadow p-6 overflow-x-auto">
+    <table class="w-full text-left text-sm">
+        <thead>
+            <tr class="border-b text-gray-500 uppercase text-xs tracking-wider">
+                <th class="py-3 px-2">#</th>
+                <th class="py-3 px-2">Preview</th>
+                <th class="py-3 px-2">Service Title</th>
+                <th class="py-3 px-2">Provider</th>
+                <th class="py-3 px-2">Price</th>
+                <th class="py-3 px-2">Category</th>
+                <th class="py-3 px-2">Description</th>
+                <th class="py-3 px-2 text-center">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach ($pendingServices as $index => $service)
+                <tr class="border-b hover:bg-gray-50 transition">
+                    <td class="py-3 px-2">{{ $index + 1 }}</td>
+
+                    <td class="py-3 px-2">
+                        @if ($service->image)
+                            <img src="{{ asset('storage/' . $service->image) }}"
+                                 class="w-14 h-14 object-cover rounded-md border">
+                        @else
+                            <span class="text-gray-400 italic">No Image</span>
+                        @endif
+                    </td>
+
+                    <td class="py-3 px-2 font-semibold text-gray-800">{{ $service->title }}</td>
+                    <td class="py-3 px-2">{{ $service->user->name ?? 'N/A' }}</td>
+                    <td class="py-3 px-2">₱{{ number_format($service->price, 2) }}</td>
+                    <td class="py-3 px-2">{{ $service->category ?? '—' }}</td>
+
+                    <td class="py-3 px-2 text-gray-600 w-64">
+                        {{ Str::limit($service->description, 60) }}
+                    </td>
+
+                    <td class="py-3 px-2 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            
+                            {{-- Approve --}}
+                            <form method="POST" action="{{ route('admin.services.approve', $service->id) }}">
+                                @csrf
+                                <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs">
+                                    Approve
+                                </button>
+                            </form>
+
+                            {{-- Reject --}}
+                            <form method="POST" action="{{ route('admin.services.reject', $service->id) }}">
+                                @csrf
+                                <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs">
+                                    Reject
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endif
+@endsection
