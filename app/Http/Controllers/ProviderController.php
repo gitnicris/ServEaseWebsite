@@ -73,6 +73,7 @@ class ProviderController extends Controller
             'averageRating' => $averageRating,
         ]);
     }
+    
 
     // ✏️ Edit Profile
     public function editProfile()
