@@ -31,6 +31,9 @@
             color: #111827;
             min-height: 100vh;
         }
+        html {
+           scroll-behavior: smooth;
+        }
 
         /* LAYOUT WRAPPER (SIDEBAR + MAIN) */
         .layout-wrapper {
@@ -405,6 +408,7 @@
         }
 
         main {
+            flex: 1 0 auto; /* allows main content to expand */
             padding: 1.75rem;
         }
 
@@ -421,6 +425,23 @@
             background: #f9fafb;
             color: #6b7280;
             font-size: 0.8rem;
+            text-align: center;
+            flex-shrink: 0;
+            padding: 0.75rem 1rem;
+        }
+
+        footer a {
+            color: #6b7280;
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .nav-link.active {
+        font-weight: bold;
+        color: #0d6efd !important; /* Bootstrap primary color */
         }
 
         /* TABLET: nicer stacking */
@@ -637,9 +658,13 @@
             </div>
         </main>
 
-        <footer class="py-3 text-center">
-            © {{ date('Y') }} <strong>ServEase</strong>. All Rights Reserved.
-        </footer>
+        <footer>
+    © {{ date('Y') }} <strong>ServEase</strong>. All Rights Reserved.
+    <div class="mt-1">
+        <a href="{{ route('terms') }}">Terms of Service</a> |
+        <a href="{{ route('privacy') }}">Privacy Policy</a>
+    </div>
+</footer>
     </div>
 </div>
 
@@ -665,6 +690,28 @@
             layout.classList.remove('sidebar-open-mobile');
         });
     });
+    document.addEventListener("DOMContentLoaded", function() {
+    const sections = document.querySelectorAll("h4[id]");
+    const navLinks = document.querySelectorAll(".nav-link");
+
+    function activateLink() {
+        let scrollPosition = window.scrollY + 100; // offset for sticky header
+
+        sections.forEach(section => {
+            const top = section.offsetTop;
+            const bottom = top + section.offsetHeight;
+
+            if (scrollPosition >= top && scrollPosition < bottom) {
+                navLinks.forEach(link => link.classList.remove("active"));
+                const activeLink = document.querySelector(`.nav-link[href="#${section.id}"]`);
+                if (activeLink) activeLink.classList.add("active");
+            }
+        });
+    }
+
+        window.addEventListener("scroll", activateLink);
+         activateLink(); // initialize on page load
+        });
 </script>
 
 </body>
