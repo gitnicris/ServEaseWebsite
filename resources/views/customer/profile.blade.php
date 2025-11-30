@@ -1,95 +1,80 @@
 @extends('layouts.app')
+@section('title', 'My Profile | ServEase')
 
 @section('content')
-<div class="max-w-4xl mx-auto mt-6">
 
-    {{-- 👤 Profile Header --}}
-    <div class="flex flex-col items-center mb-6 bg-white rounded-2xl shadow-sm p-6 sm:p-8">
-        {{-- Profile Photo (clickable) --}}
-        <button id="profilePhotoBtn" class="focus:outline-none">
-            @if (!empty($profile->photo) && Storage::disk('public')->exists($profile->photo))
-                <img src="{{ asset('storage/' . $profile->photo) }}" 
-                     alt="Profile Photo" 
-                     class="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-primary shadow-sm hover:ring-2 hover:ring-accent transition">
-            @else
-                <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-primary flex items-center justify-center text-white text-4xl sm:text-5xl font-bold shadow-sm hover:ring-2 hover:ring-accent transition">
-                    {{ strtoupper(substr($user->name, 0, 1)) }}
-                </div>
-            @endif
+<div class="max-w-3xl mx-auto">
+
+    {{-- Profile Header --}}
+    <div class="text-center mb-6">
+        <div class="relative inline-block">
+            <img 
+                id="profilePhoto"
+                src="{{ $profile->photo_url }}" 
+                class="w-32 h-32 rounded-full border-4 border-white shadow-md object-cover cursor-pointer hover:opacity-80 transition"
+                onclick="openModal()"
+                title="Click to view"
+            >
+        </div>
+
+        <h2 class="text-2xl font-semibold mt-3">{{ $user->name }}</h2>
+        <p class="text-gray-500">{{ $user->email }}</p>
+
+        <button onclick="window.location='{{ route('customer.profile.edit') }}'"
+                class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow">
+            Edit Profile
         </button>
-
-        <h2 class="mt-4 text-2xl sm:text-3xl font-semibold text-primary">{{ $user->name }}</h2>
-        <p class="text-gray-500 text-sm sm:text-base capitalize">{{ $user->role }}</p>
     </div>
 
-    {{-- 🧾 Profile Information --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        @php
-            $infoFields = [
-                ['label' => 'Full Name', 'value' => $user->name, 'icon' => 'person'],
-                ['label' => 'Email', 'value' => $user->email, 'icon' => 'envelope'],
-                ['label' => 'Phone', 'value' => $profile->phone ?? 'Not provided', 'icon' => 'telephone'],
-                ['label' => 'Address', 'value' => $profile->address ?? 'Not provided', 'icon' => 'geo-alt'],
-                ['label' => 'Bio', 'value' => $profile->bio ?? 'No bio available.', 'icon' => 'card-text', 'colspan' => true],
-            ];
-        @endphp
+    {{-- Info Card --}}
+    <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+        <h4 class="text-lg font-semibold mb-4">Account Information</h4>
 
-        @foreach ($infoFields as $field)
-            <div class="{{ isset($field['colspan']) && $field['colspan'] ? 'md:col-span-2' : '' }} bg-white rounded-2xl shadow-sm p-4 sm:p-6 flex items-start gap-3">
-                <i class="bi bi-{{ $field['icon'] }} text-lg text-accent mt-1"></i>
-                <div>
-                    <h3 class="text-gray-500 text-sm font-semibold uppercase mb-1">{{ $field['label'] }}</h3>
-                    <p class="text-primary text-lg break-words">{{ $field['value'] }}</p>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div>
+                <label class="text-sm text-gray-500">Full Name</label>
+                <p class="font-medium">{{ $user->name }}</p>
             </div>
-        @endforeach
+
+            <div>
+                <label class="text-sm text-gray-500">Email</label>
+                <p class="font-medium">{{ $user->email }}</p>
+            </div>
+
+            <div>
+                <label class="text-sm text-gray-500">Phone</label>
+                <p class="font-medium">{{ $profile->phone ?? 'Not set' }}</p>
+            </div>
+
+            <div>
+                <label class="text-sm text-gray-500">Address</label>
+                <p class="font-medium">{{ $profile->address ?? 'Not set' }}</p>
+            </div>
+
+        </div>
     </div>
 
-    {{-- ✏️ Edit Button --}}
-    <div class="mt-6 md:mt-8 text-center">
-        <a href="{{ route('customer.profile.edit') }}" 
-           class="inline-flex items-center justify-center px-6 py-2 bg-accent hover:bg-blue-600 text-white font-semibold rounded-lg shadow-sm transition duration-150 text-sm sm:text-base">
-            <i class="bi bi-pencil-square me-2"></i> Edit Profile
-        </a>
-    </div>
 </div>
 
-{{-- 🔳 Modal for Viewing Profile Photo --}}
-<div id="photoModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
-    <div class="relative max-w-md w-full p-4">
-        <button id="closeModal" class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-gray-300">&times;</button>
-        @if (!empty($profile->photo) && Storage::disk('public')->exists($profile->photo))
-            <img src="{{ asset('storage/' . $profile->photo) }}" alt="Profile Photo" class="rounded-lg shadow-lg w-full h-auto">
-        @else
-            <div class="w-full h-64 rounded-lg bg-primary flex items-center justify-center text-white text-6xl font-bold shadow-lg">
-                {{ strtoupper(substr($user->name, 0, 1)) }}
-            </div>
-        @endif
-    </div>
+{{-- Modal --}}
+<div id="photoModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+    <span class="absolute top-4 right-6 text-white text-3xl cursor-pointer" onclick="closeModal()">&times;</span>
+    <img id="modalImage" src="" class="max-h-[80%] max-w-[80%] rounded-lg shadow-lg">
 </div>
 
-{{-- 🔹 JavaScript --}}
 <script>
+function openModal() {
     const modal = document.getElementById('photoModal');
-    const btn = document.getElementById('profilePhotoBtn');
-    const closeBtn = document.getElementById('closeModal');
+    const modalImg = document.getElementById('modalImage');
+    const photo = document.getElementById('profilePhoto');
 
-    btn.addEventListener('click', () => {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    });
-
-    closeBtn.addEventListener('click', () => {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    });
-
-    // Close modal on click outside the image
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-    });
+    modalImg.src = photo.src;
+    modal.classList.remove('hidden');
+}
+function closeModal() {
+    document.getElementById('photoModal').classList.add('hidden');
+}
 </script>
+
 @endsection

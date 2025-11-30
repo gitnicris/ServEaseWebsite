@@ -1,86 +1,98 @@
 @extends('layouts.app')
+@section('title', 'Edit Profile | ServEase')
 
 @section('content')
-<div class="max-w-3xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
 
-    {{-- ✅ Success Message --}}
-    @if (session('success'))
-        <div class="mb-6 px-4 py-3 rounded-lg bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-300 border border-green-300/40 flex items-center gap-2">
-            <i class="bi bi-check-circle-fill text-lg"></i>
-            <span>{{ session('success') }}</span>
+<div class="max-w-3xl mx-auto">
+
+    <form action="{{ route('customer.profile.update') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
+
+        {{-- Profile Photo Upload --}}
+        <div class="text-center mb-6">
+            <div class="relative inline-block">
+                <img 
+                    id="profilePreview"
+                    src="{{ $profile->photo_url }}"
+                    class="w-32 h-32 rounded-full border-4 border-white shadow-md object-cover cursor-pointer hover:opacity-80 transition"
+                    onclick="document.getElementById('profilePhotoInput').click();"
+                >
+
+                <input 
+                    type="file"
+                    id="profilePhotoInput"
+                    name="photo"  {{-- Must match controller --}}
+                    accept="image/*"
+                    class="hidden"
+                    onchange="previewProfile(event)"
+                >
+            </div>
+
+            <p class="mt-2 text-gray-500 text-sm">Click your photo to change</p>
         </div>
-    @endif
 
-    {{-- 👤 Profile Header --}}
-    <div class="flex flex-col items-center mb-10 text-center bg-white/90 dark:bg-gray-800/80 rounded-2xl shadow-xl p-6 sm:p-8 backdrop-blur-md">
-        
-        <form id="photoForm" action="{{ route('customer.profile.update') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            @method('PUT')
+        {{-- Form Card --}}
+        <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
 
-            {{-- Profile Photo (clickable) --}}
-            <label for="photoInput" class="cursor-pointer relative">
-                @if (!empty($profile->photo) && Storage::disk('public')->exists($profile->photo))
-                    <img src="{{ asset('storage/' . $profile->photo) }}" 
-                         alt="Profile Photo" 
-                         class="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-green-500 shadow-lg mb-3 hover:ring-2 hover:ring-green-400 transition">
-                @else
-                    <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-green-500 flex items-center justify-center text-white text-4xl sm:text-5xl font-bold shadow-lg mb-3 hover:ring-2 hover:ring-green-400 transition">
-                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                    </div>
-                @endif
-                <input type="file" name="photo" id="photoInput" class="hidden" accept="image/*" onchange="document.getElementById('photoForm').submit();">
-                <div class="absolute bottom-0 right-0 bg-green-500 text-white rounded-full p-1 sm:p-2 shadow-lg">
-                    <i class="bi bi-pencil-fill text-sm sm:text-base"></i>
+            <h4 class="text-lg font-semibold mb-4">Edit Your Information</h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                {{-- Name --}}
+                <div class="col-span-2">
+                    <label class="text-sm text-gray-600">Full Name</label>
+                    <input type="text" name="name" value="{{ $user->name }}"
+                        class="form-control mt-1">
                 </div>
-            </label>
-        </form>
 
-        <h2 class="text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ $user->name }}</h2>
-        <p class="text-gray-500 dark:text-gray-400">Customer</p>
-    </div>
+                {{-- Email --}}
+                <div>
+                    <label class="text-sm text-gray-600">Email</label>
+                    <input type="email" name="email" value="{{ $user->email }}"
+                        class="form-control mt-1">
+                </div>
 
-    {{-- 📝 Edit Profile Form --}}
-    <div class="bg-white/90 dark:bg-gray-800/80 rounded-2xl shadow-xl p-8 backdrop-blur-md">
-        <form action="{{ route('customer.profile.update') }}" method="POST" class="space-y-6">
-            @csrf
-            @method('PUT')
+                {{-- Phone --}}
+                <div>
+                    <label class="text-sm text-gray-600">Phone</label>
+                    <input type="text" name="phone" value="{{ $profile->phone }}"
+                        class="form-control mt-1">
+                </div>
 
-            {{-- Full Name --}}
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
-                <input type="text" name="name" value="{{ old('name', $user->name) }}" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-green-400 focus:border-green-400 transition duration-200 hover:shadow-sm">
+                {{-- Address --}}
+                <div class="col-span-2">
+                    <label class="text-sm text-gray-600">Address</label>
+                    <input type="text" name="address" value="{{ $profile->address }}"
+                        class="form-control mt-1">
+                </div>
+
             </div>
 
-            {{-- Bio --}}
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Bio</label>
-                <textarea name="bio" rows="3" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-green-400 focus:border-green-400 transition duration-200 hover:shadow-sm">{{ old('bio', $profile->bio) }}</textarea>
-            </div>
-
-            {{-- Phone --}}
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Phone</label>
-                <input type="text" name="phone" value="{{ old('phone', $profile->phone) }}" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-green-400 focus:border-green-400 transition duration-200 hover:shadow-sm">
-            </div>
-
-            {{-- Address --}}
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Address</label>
-                <input type="text" name="address" value="{{ old('address', $profile->address) }}" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-green-400 focus:border-green-400 transition duration-200 hover:shadow-sm">
-            </div>
-
-            {{-- Buttons --}}
-            <div class="flex flex-col sm:flex-row justify-between items-center pt-4 gap-3 sm:gap-0">
-                <a href="{{ route('customer.profile') }}" class="w-full sm:w-auto px-5 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition duration-150 text-center">
-                    <i class="bi bi-arrow-left me-2"></i> Cancel
+            <div class="flex justify-between mt-5">
+                <a href="{{ route('customer.profile') }}"
+                    class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg shadow">
+                    Back to Profile
                 </a>
 
-                <button type="submit" class="w-full sm:w-auto px-6 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-md transition duration-150">
-                    <i class="bi bi-save2 me-1"></i> Save Changes
+                <button type="submit"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow">
+                    Save Changes
                 </button>
             </div>
-        </form>
-    </div>
+
+        </div>
+    </form>
 </div>
+
+<script>
+function previewProfile(event) {
+    const reader = new FileReader();
+    reader.onload = function(){
+        document.getElementById('profilePreview').src = reader.result;
+    }
+    reader.readAsDataURL(event.target.files[0]);
+}
+</script>
+
 @endsection

@@ -21,4 +21,13 @@ class CustomerProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function getPhotoUrlAttribute()
+{
+    if ($this->photo && \Storage::disk('public')->exists($this->photo)) {
+        return asset('storage/' . $this->photo);
+    }
+
+    return 'https://ui-avatars.com/api/?name=' . urlencode($this->name ?? $this->user->name);
+}
+
 }

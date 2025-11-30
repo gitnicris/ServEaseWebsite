@@ -30,6 +30,14 @@ class ProviderProfile extends Model
 {
     return $this->hasMany(Review::class, 'provider_id', 'user_id');
 }
+public function getPhotoUrlAttribute()
+{
+    if ($this->photo && \Storage::disk('public')->exists($this->photo)) {
+        return asset('storage/' . $this->photo);
+    }
+
+    return 'https://ui-avatars.com/api/?name=' . urlencode($this->name ?? $this->user->name);
+}
 
 
 }
