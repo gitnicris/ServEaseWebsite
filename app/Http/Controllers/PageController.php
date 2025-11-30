@@ -23,10 +23,11 @@ class PageController extends Controller
         return view('pages.services', compact('services'));
     }
 
-    public function messages()
+    public function contact()
     {
-        return view('pages.messages');
+        return view('pages.contact');
     }
+    
 
     public function about()
     {

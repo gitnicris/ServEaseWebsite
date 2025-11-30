@@ -605,6 +605,8 @@
 
                     <a href="{{ route('about') }}"
                        class="{{ request()->routeIs('about') ? 'active' : '' }}">About</a>
+                    <a href="{{ route('contact') }}"
+                       class="{{ request()->routeIs('contact') ? 'active' : '' }}">Contact</a>
                 </nav>
 
             

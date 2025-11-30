@@ -15,6 +15,7 @@ use App\Http\Controllers\Customer\CustomerSettingsController;
 use App\Http\Controllers\Auth\ForgotPasswordCodeController;
 use App\Http\Controllers\Auth\ResetPasswordCodeController;
 use App\Http\Controllers\PublicProviderController;
+use App\Http\Controllers\ContactController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +26,9 @@ use App\Http\Controllers\PublicProviderController;
 Route::controller(PageController::class)->group(function () {
     Route::get('/', 'home')->name('home');
     Route::get('/about', 'about')->name('about');
+    Route::get('/contact', 'contact')->name('contact');
 });
+Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
 Route::get('/services', [ServiceController::class, 'browse'])->name('services.index');
 Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
