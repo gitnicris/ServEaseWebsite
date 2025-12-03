@@ -125,7 +125,7 @@
         </button>
 
         {{-- Title --}}
-        <h2 class="text-xl font-bold mb-5 text-gray-800 dark:text-gray-100 text-center">
+        <h2 class="text-xl font-bold mb-5 text-gray-800 dark:text-black-100 text-center">
             Add New Service
         </h2>
 
@@ -134,33 +134,38 @@
 
             {{-- Input Fields --}}
             <div>
-                <label class="text-sm text-gray-700 dark:text-gray-300 font-medium">Service Title</label>
+                <label class="text-sm text-gray-700 dark:text-black-300 font-medium">Service Title</label>
                 <input type="text" name="title" required
-                    class="w-full mt-1 p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring focus:ring-orange-300 focus:border-orange-500 outline-none">
+                    class="w-full mt-1 p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700
+                           text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring focus:ring-orange-300 focus:border-orange-500 outline-none">
             </div>
 
             <div>
-                <label class="text-sm text-gray-700 dark:text-gray-300 font-medium">Category</label>
+                <label class="text-sm text-gray-700 dark:text-black-300 font-medium">Category</label>
                 <input type="text" name="category" placeholder="e.g. Cleaning"
-                    class="w-full mt-1 p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring focus:ring-orange-300 focus:border-orange-500 outline-none">
+                    class="w-full mt-1 p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700
+                           text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring focus:ring-orange-300 focus:border-orange-500 outline-none">
             </div>
 
             <div>
-                <label class="text-sm text-gray-700 dark:text-gray-300 font-medium">Description</label>
+                <label class="text-sm text-gray-700 dark:text-black-300 font-medium">Description</label>
                 <textarea name="description" rows="3" required
-                    class="w-full mt-1 p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring focus:ring-orange-300 focus:border-orange-500 outline-none"></textarea>
+                    class="w-full mt-1 p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700
+                           text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring focus:ring-orange-300 focus:border-orange-500 outline-none"></textarea>
             </div>
 
             <div>
-                <label class="text-sm text-gray-700 dark:text-gray-300 font-medium">Price (₱)</label>
+                <label class="text-sm text-gray-700 dark:text-black-300 font-medium">Price (₱)</label>
                 <input type="number" name="price" step="0.01" required
-                    class="w-full mt-1 p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring focus:ring-orange-300 focus:border-orange-500 outline-none">
+                    class="w-full mt-1 p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700
+                           text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring focus:ring-orange-300 focus:border-orange-500 outline-none">
             </div>
 
             <div>
-                <label class="text-sm text-gray-700 dark:text-gray-300 font-medium">Image</label>
+                <label class="text-sm text-gray-700 dark:text-black-300 font-medium">Image</label>
                 <input type="file" name="image" accept="image/*"
-                    class="w-full mt-1 p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700">
+                    class="w-full mt-1 p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700
+                           text-gray-900 dark:text-gray-100 placeholder-gray-400">
             </div>
 
             {{-- Buttons --}}
@@ -178,6 +183,7 @@
         </form>
     </div>
 </div>
+
 
 {{-- JS Modal --}}
 <script>

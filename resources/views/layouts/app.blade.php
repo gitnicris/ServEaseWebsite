@@ -11,6 +11,8 @@
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7.2.0/dist/turbo.min.js"></script>
+
 
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -460,6 +462,8 @@
                 width: 100%;
             }
         }
+       
+
     </style>
 </head>
 
@@ -667,20 +671,6 @@
 </footer>
     </div>
 </div>
-<!-- MUSIC PLAYER BUTTON -->
-<div id="musicPlayer"
-     style="position: fixed; bottom: 20px; right: 20px; 
-            background: #2563eb; color: white; padding: 12px 16px;
-            border-radius: 50px; display: flex; align-items: center;
-            gap: 8px; font-size: 14px; cursor: pointer; 
-            box-shadow: 0 4px 14px rgba(0,0,0,0.2); z-index: 9999;">
-    <i class="bi bi-play-fill" id="musicIcon" style="font-size: 20px;"></i>
-    <span id="musicText">Play Music</span>
-</div>
-
-<audio id="audioPlayer">
-    <source src="{{ asset('music/Justin_Bieber_-_Mistletoe__Lyrics_(128k).mp3') }}" type="audio/mpeg">
-</audio>
 
 
 <script>
@@ -727,25 +717,46 @@
         window.addEventListener("scroll", activateLink);
          activateLink(); // initialize on page load
         });
+
+
 </script>
+<!-- MUSIC PLAYER BUTTON -->
+<div id="musicPlayer" data-turbolinks-permanent
+     style="position: fixed; bottom: 16px; right: 16px; 
+            background: #2563eb; color: white; padding: 10px;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 0; cursor: pointer; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999; width: 48px; height: 48px;">
+    <i class="bi bi-play-fill" id="musicIcon" style="font-size: 20px;"></i>
+</div>
+
+<audio id="audioPlayer" controls data-turbolinks-permanent style="display:none;">
+    <source src="/ServEase/music/Justin_Bieber_Mistletoe.mp3" type="audio/mpeg">
+</audio>
+
 <script>
+(function() {
     const musicBtn  = document.getElementById('musicPlayer');
     const musicIcon = document.getElementById('musicIcon');
-    const musicText = document.getElementById('musicText');
     const audio     = document.getElementById('audioPlayer');
 
-    musicBtn.addEventListener('click', () => {
-        if (audio.paused) {
-            audio.play();
-            musicIcon.classList.replace('bi-play-fill', 'bi-pause-fill');
-            musicText.textContent = "Pause Music";
-        } else {
-            audio.pause();
-            musicIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
-            musicText.textContent = "Play Music";
-        }
-    });
+    if (musicBtn && !musicBtn.dataset.listenerAttached) {
+        musicBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                musicIcon.classList.replace('bi-play-fill', 'bi-pause-fill');
+            } else {
+                audio.pause();
+                musicIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
+            }
+        });
+        musicBtn.dataset.listenerAttached = true;
+    }
+})();
 </script>
+
+
+
 
 
 
