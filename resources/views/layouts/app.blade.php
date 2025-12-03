@@ -667,6 +667,21 @@
 </footer>
     </div>
 </div>
+<!-- MUSIC PLAYER BUTTON -->
+<div id="musicPlayer"
+     style="position: fixed; bottom: 20px; right: 20px; 
+            background: #2563eb; color: white; padding: 12px 16px;
+            border-radius: 50px; display: flex; align-items: center;
+            gap: 8px; font-size: 14px; cursor: pointer; 
+            box-shadow: 0 4px 14px rgba(0,0,0,0.2); z-index: 9999;">
+    <i class="bi bi-play-fill" id="musicIcon" style="font-size: 20px;"></i>
+    <span id="musicText">Play Music</span>
+</div>
+
+<audio id="audioPlayer">
+    <source src="{{ asset('music/Justin_Bieber_-_Mistletoe__Lyrics_(128k).mp3') }}" type="audio/mpeg">
+</audio>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -713,6 +728,26 @@
          activateLink(); // initialize on page load
         });
 </script>
+<script>
+    const musicBtn  = document.getElementById('musicPlayer');
+    const musicIcon = document.getElementById('musicIcon');
+    const musicText = document.getElementById('musicText');
+    const audio     = document.getElementById('audioPlayer');
+
+    musicBtn.addEventListener('click', () => {
+        if (audio.paused) {
+            audio.play();
+            musicIcon.classList.replace('bi-play-fill', 'bi-pause-fill');
+            musicText.textContent = "Pause Music";
+        } else {
+            audio.pause();
+            musicIcon.classList.replace('bi-pause-fill', 'bi-play-fill');
+            musicText.textContent = "Play Music";
+        }
+    });
+</script>
+
+
 
 </body>
 </html>
