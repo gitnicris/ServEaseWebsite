@@ -23,7 +23,7 @@
             <p class="text-gray-500 mt-3 text-lg md:text-xl">Browse and connect with providers</p>
         </div>
 
-        <!-- Services Grid -->
+        <!-- Services Grid --> 
         @if($services->isEmpty())
             <div class="text-center text-gray-500 text-lg mt-10">
                 No services available at the moment.

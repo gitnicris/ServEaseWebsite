@@ -1,4 +1,4 @@
-@extends('layouts.app')
+customer/profile.blade.php: @extends('layouts.app')
 @section('title', 'My Profile | ServEase')
 
 @section('content')
@@ -72,9 +72,8 @@ function openModal() {
     modalImg.src = photo.src;
     modal.classList.remove('hidden');
 }
+
 function closeModal() {
     document.getElementById('photoModal').classList.add('hidden');
 }
 </script>
-
-@endsection

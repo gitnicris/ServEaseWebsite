@@ -82,6 +82,7 @@
             </div>
 
         </div>
+
     </form>
 </div>
 
@@ -94,5 +95,3 @@ function previewProfile(event) {
     reader.readAsDataURL(event.target.files[0]);
 }
 </script>
-
-@endsection
